@@ -6,48 +6,100 @@
   <title>BCA Department Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col items-center justify-center">
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
 
-  <header class="w-full text-center py-6 bg-blue-700 text-white shadow-md">
-    <h1 class="text-3xl font-bold">BCA Department</h1>
-    <p class="text-sm">Bengaluru University, Jnana Bharathi Campus</p>
+  <!-- Header -->
+  <header class="w-full flex items-center justify-between px-6 py-4 bg-blue-700 text-white shadow-md">
+    <div>
+      <h1 class="text-3xl font-bold">BCA Department</h1>
+      <p class="text-sm">Bengaluru University, Jnana Bharathi Campus</p>
+    </div>
+    <button id="loginBtn" class="bg-white text-blue-700 px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition">
+      Login
+    </button>
   </header>
 
-  <main class="flex-1 w-full max-w-4xl px-4 mt-10">
-    <div class="text-center">
-      <h2 class="text-2xl font-semibold mb-4">Welcome to the Official Portal</h2>
-      <p class="mb-8 text-gray-600">Explore updates, logins, and academic applications all in one place.</p>
-    </div>
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-10">
 
-    <div class="grid gap-6 md:grid-cols-2">
-      <a href="/login" class="bg-white shadow-md hover:shadow-lg p-6 rounded-xl text-center transition">
-        <h3 class="text-xl font-semibold text-blue-700">Admin Login</h3>
-        <p class="text-gray-500 text-sm mt-2">Access faculty & admission applications</p>
-      </a>
+    <!-- Welcome Section -->
+    <section class="text-center mb-12">
+      <h2 class="text-4xl font-semibold mb-2">Welcome to the BCA Digital Space</h2>
+      <p class="text-gray-600">Your one-stop portal for all academic updates, applications, and resources.</p>
+    </section>
 
-      <div class="bg-white shadow-md p-6 rounded-xl text-center">
-        <h3 class="text-xl font-semibold text-green-700">Important Updates</h3>
-        <ul class="mt-2 text-sm text-gray-600 list-disc list-inside text-left">
-          <li>Last date to submit guest faculty form: <strong>8th July 2025</strong></li>
-          <li>New Admission Portal opening soon</li>
-          <li>Semester Timetable updated</li>
-        </ul>
+    <!-- Live Updates Section (dynamic) -->
+    <section class="mt-12 bg-white p-6 rounded-xl shadow-md">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-blue-700">Live Updates</h2>
+        {% if last_updated %}
+          <time class="text-sm text-gray-500">Last updated: {{ last_updated.replace("T"," ") }}</time>
+        {% endif %}
       </div>
+      <ul class="space-y-4">
+        {% for u in updates %}
+          <li class="border-l-4 pl-4
+                     {% if u.type == 'Exam Notification' %}border-red-500
+                     {% elif u.type == 'Timetable Update' %}border-green-500
+                     {% else %}border-gray-300{% endif %}">
+            <div class="flex justify-between items-baseline">
+              <h3 class="font-medium">{{ u.title }}</h3>
+              <time class="text-sm text-gray-500">{{ u.date|replace("T"," ") }}</time>
+            </div>
+            <p class="text-sm text-gray-600">{{ u.description }}</p>
+            {% if u.link %}
+              <a href="{{ u.link }}" class="text-sm text-blue-600 hover:underline">View details</a>
+            {% endif %}
+          </li>
+        {% else %}
+          <li class="text-gray-500">No updates at the moment.</li>
+        {% endfor %}
+      </ul>
+    </section>
 
-      <a href="#" class="bg-white shadow-md hover:shadow-lg p-6 rounded-xl text-center transition">
-        <h3 class="text-xl font-semibold text-indigo-700">Student Login</h3>
-        <p class="text-gray-500 text-sm mt-2">Coming soon: Attendance, Internal Marks</p>
-      </a>
+    <!-- Call-to-Action -->
+    <section class="text-center mt-12">
+      <p class="text-gray-600 mb-4">Click “Login” above to access your dashboard:</p>
+      <button id="loginBtn2" class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow hover:bg-blue-700 transition">
+        Login Now
+      </button>
+    </section>
 
-      <a href="#" class="bg-white shadow-md hover:shadow-lg p-6 rounded-xl text-center transition">
-        <h3 class="text-xl font-semibold text-purple-700">Parent/Faculty Zone</h3>
-        <p class="text-gray-500 text-sm mt-2">Track updates and progress (Coming Soon)</p>
-      </a>
-    </div>
   </main>
 
-  <footer class="w-full text-center py-4 mt-10 text-sm text-gray-500">
+  <!-- Footer -->
+  <footer class="w-full text-center py-4 text-sm text-gray-500">
     &copy; 2025 BCA Department, Bengaluru University
   </footer>
+
+  <!-- Role-Selector Modal -->
+  <div id="roleModal"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-2xl p-8 w-80 relative">
+      <button id="closeModal"
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h4 class="text-xl font-semibold mb-6 text-center">You are</h4>
+      <ul class="space-y-3">
+        <li><a href="{{ url_for('student_login') }}" class="block text-center py-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition">Student</a></li>
+        <li><a href="{{ url_for('parent_login') }}"  class="block text-center py-2 bg-green-100 rounded-lg hover:bg-green-200 transition">Parent</a></li>
+        <li><a href="{{ url_for('faculty_login') }}" class="block text-center py-2 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition">Faculty</a></li>
+        <li><a href="{{ url_for('login') }}"         class="block text-center py-2 bg-red-100 rounded-lg hover:bg-red-200 transition">Admin</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Modal & Button Script -->
+  <script>
+    const modal       = document.getElementById('roleModal');
+    const openBtns    = [document.getElementById('loginBtn'), document.getElementById('loginBtn2')];
+    const closeModal  = document.getElementById('closeModal');
+
+    openBtns.forEach(btn =>
+      btn.addEventListener('click', () => modal.classList.remove('hidden'))
+    );
+    closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+  </script>
+
 </body>
 </html>
