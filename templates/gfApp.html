@@ -123,39 +123,102 @@
       document.body.style.overflow = "hidden";
     }
     function showDetails(app) {
-      const modal = document.getElementById("detailModal");
-      const contentEl = document.getElementById("detailContent");
-      const photoId = app[29].includes("=") ? app[29].split('=')[1] : app[29].split('/')[-2];
-      document.getElementById("modalLargePhoto").src = `https://lh3.googleusercontent.com/d/${photoId}`;
-      const percentage = parseFloat(app[15]);
-      const phdHighlight = /PHD|UGC/i.test(app[17]);
-      const experience = parseInt(app[28]) || 0;
-      const journals = parseInt(app[22]) + parseInt(app[23]);
-      let score = (percentage > 60 ? 20 : 10) + (phdHighlight ? 30 : 0) + experience*2 + journals*2;
-      const items = [
-        { label: "Name", value: app[2] },
-        { label: "Application #", value: app[32] },
-        { label: "Email", value: app[7] },
-        { label: "Phone", value: `<a href='tel:${app[6]}' class='text-primary underline'>${app[6]}</a>` },
-        { label: "Category", value: app[8] },
-        { label: "DOB", value: app[5] },
-        { label: "Applied For", value: app[4] },
-        { label: "UG Degree", value: `${app[10]} - ${app[11]}` },
-        { label: "PG Degree", value: `${app[12]} - ${app[13]} (${app[14]})` },
-        { label: `<span class='text-red-600 font-semibold'>PG %</span>`, value: `<span class='font-bold'>${app[15]}%</span>` },
-        { label: "Qualification", value: `<span class='${phdHighlight ? 'bg-accent/20 px-2 rounded font-semibold' : ''}'>${app[17]}</span>` },
-        { label: "Experience", value: `<span class='text-green-600 font-bold'>${experience} yrs</span>` }
-      ];
-      const html = items.map(i => `<p><strong>${i.label}:</strong> ${i.value}</p>`).join('') +
-        `<div class='mt-6'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Publications</h3>
-         <table class='w-full border border-gray-300'><thead><tr class='bg-gray-100'><th class='px-3 py-2'>National</th><th class='px-3 py-2'>International</th><th class='px-3 py-2'>Total</th></tr></thead>
-         <tbody><tr><td class='px-3 py-2'>${app[22]}</td><td class='px-3 py-2'>${app[23]}</td><td class='px-3 py-2'>${journals}</td></tr></tbody></table></div>
-        <p class='mt-4'><strong>Resume:</strong> <a href='${app[30]}' target='_blank' class='text-primary underline'>Open CV</a></p>
-        <p class='mt-4 text-xl font-bold text-purple-700'>Score without Interview: ${score}</p>`;
-      contentEl.innerHTML = html;
-      modal.classList.remove("opacity-0", "pointer-events-none");
-      document.body.style.overflow = "hidden";
-    }
+  const modal = document.getElementById("detailModal");
+  const contentEl = document.getElementById("detailContent");
+  const photoId = app[29].includes("=") ? app[29].split('=')[1] : app[29].split('/').slice(-2, -1)[0];
+  document.getElementById("modalLargePhoto").src = `https://lh3.googleusercontent.com/d/${photoId}`;
+
+  // Extract fields
+  const pgPercentage = parseFloat(app[15]);
+  const qual = (app[17] || "").toUpperCase();
+  const exam = (app[18] || "").toUpperCase();
+  const postDoc = (app[19] || "").toLowerCase();
+  const national = parseInt(app[22]) || 0;
+  const international = parseInt(app[23]) || 0;
+  const patents = parseInt(app[24]) || 0;
+  const books = parseInt(app[25]) || 0;
+  const chapters = parseInt(app[26]) || 0;
+  const docs = parseInt(app[27]) || 0;
+  const experience = parseFloat(app[28]) || 0;
+
+  // PG % Score (max 10)
+  let pgScore = 0;
+  if (pgPercentage >= 80) pgScore = 10;
+  else if (pgPercentage >= 70) pgScore = 9;
+  else if (pgPercentage >= 60) pgScore = 8;
+  else if (pgPercentage >= 55) pgScore = 6;
+
+  // PhD / MPhil Score (max 10)
+  let qualScore = 0;
+  if (qual.includes("PHD")) qualScore = 10;
+  else if (qual.includes("MPHIL")) qualScore = 5;
+
+  // NET/SLET (max 7.5)
+  let examScore = 0;
+  const hasNET = exam.includes("NET");
+  const hasSLET = exam.includes("SLET");
+  if (hasNET && hasSLET) examScore = 7.5;
+  else if (hasNET) examScore = 7.5;
+  else if (hasSLET) examScore = 6;
+
+  // Post Doctoral Studies (max 10)
+  const pubCount = national + international;
+  let postDocScore = 0;
+  if (postDoc.includes("2 years") && pubCount >= 3) postDocScore = 10;
+  else if (postDoc.includes("1 year") && pubCount >= 2) postDocScore = 6;
+  else if (postDoc.includes("6 months") && pubCount >= 1) postDocScore = 3;
+
+  // Research Publications Score (max 20)
+  const researchScore = national * 1 + international * 2 + patents * 5 + books * 5 + chapters * 2 + docs * 2;
+
+  // Teaching Score (max 10)
+  const teachingScore = Math.min(10, experience * 2);
+
+  // Section-wise scores
+  const academicTotal = pgScore + qualScore + examScore + postDocScore;
+  const totalScore = academicTotal + researchScore + teachingScore;
+
+  // Display info
+  const items = [
+    { label: "Name", value: app[2] },
+    { label: "Application #", value: app[32] || "-" },
+    { label: "Email", value: app[7] },
+    { label: "Phone", value: `<a href='tel:${app[6]}' class='text-primary underline'>${app[6]}</a>` },
+    { label: "Category", value: app[8] },
+    { label: "DOB", value: app[5] },
+    { label: "Applied For", value: app[4] },
+    { label: "UG Degree", value: `${app[10]} - ${app[11]}` },
+    { label: "PG Degree", value: `${app[12]} - ${app[13]} (${app[14]})` },
+    { label: `<span class='text-red-600 font-semibold'>PG %</span>`, value: `<span class='font-bold'>${pgPercentage}%</span>` },
+    { label: "Qualification", value: qual },
+    { label: "Exam Qualification", value: exam },
+    { label: "Post Doctoral Duration", value: postDoc },
+    { label: "Experience", value: `<span class='text-green-600 font-bold'>${experience} yrs</span>` }
+  ];
+
+  const html = items.map(i => `<p><strong>${i.label}:</strong> ${i.value}</p>`).join('') +
+    `<div class='mt-6'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Publications</h3>
+     <table class='w-full border border-gray-300'><thead><tr class='bg-gray-100'>
+     <th class='px-3 py-2'>National</th><th class='px-3 py-2'>International</th>
+     <th class='px-3 py-2'>Patents</th><th class='px-3 py-2'>Books</th>
+     <th class='px-3 py-2'>Chapters</th><th class='px-3 py-2'>Docs</th></tr></thead>
+     <tbody><tr>
+     <td class='px-3 py-2'>${national}</td><td class='px-3 py-2'>${international}</td>
+     <td class='px-3 py-2'>${patents}</td><td class='px-3 py-2'>${books}</td>
+     <td class='px-3 py-2'>${chapters}</td><td class='px-3 py-2'>${docs}</td>
+     </tr></tbody></table></div>
+     <div class='mt-4 space-y-1 text-sm'>
+       <p><strong>Academic Score:</strong> ${academicTotal.toFixed(2)} / 37.5</p>
+       <p><strong>Research Score:</strong> ${researchScore.toFixed(2)} / 20</p>
+       <p><strong>Teaching Score:</strong> ${teachingScore.toFixed(2)} / 10</p>
+     </div>
+     <p class='mt-4 text-xl font-bold text-purple-700'>Total Score (out of 67.5): ${totalScore.toFixed(2)}</p>`;
+
+  contentEl.innerHTML = html;
+  modal.classList.remove("opacity-0", "pointer-events-none");
+  document.body.style.overflow = "hidden";
+}
+
     function closeModal(id) {
       const modal = document.getElementById(id);
       modal.classList.add("opacity-0", "pointer-events-none");
