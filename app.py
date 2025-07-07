@@ -10,6 +10,10 @@ app = Flask(__name__)
 GOOGLE_SCRIPT_URL = os.getenv('GOOGLE_SCRIPT_URL')
 
 @app.route('/')
+def index():
+    return render_template("index.html")
+
+@app.route('/gfapplications')
 def display_data():
     try:
         response = requests.get(GOOGLE_SCRIPT_URL)
