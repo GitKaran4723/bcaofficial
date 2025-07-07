@@ -130,8 +130,8 @@
 
   // Extract fields
   const pgPercentage = parseFloat(app[15]);
-  const qual = (app[17] || "").toUpperCase();
-  const exam = (app[18] || "").toUpperCase();
+  const qual = (app[16] || "").toUpperCase();
+  const exam = (app[17] || "").toUpperCase();
   const postDoc = (app[19] || "").toLowerCase();
   const national = parseInt(app[22]) || 0;
   const international = parseInt(app[23]) || 0;
@@ -157,6 +157,9 @@
   let examScore = 0;
   const hasNET = exam.includes("NET");
   const hasSLET = exam.includes("SLET");
+
+  console.log(hasNET)
+  console.log(hasSLET)
   if (hasNET && hasSLET) examScore = 7.5;
   else if (hasNET) examScore = 7.5;
   else if (hasSLET) examScore = 6;
@@ -178,6 +181,7 @@
   const academicTotal = pgScore + qualScore + examScore + postDocScore;
   const totalScore = academicTotal + researchScore + teachingScore;
 
+  console.log("Date",app[5])
   // Display info
   const items = [
     { label: "Name", value: app[2] },
@@ -185,7 +189,14 @@
     { label: "Email", value: app[7] },
     { label: "Phone", value: `<a href='tel:${app[6]}' class='text-primary underline'>${app[6]}</a>` },
     { label: "Category", value: app[8] },
-    { label: "DOB", value: app[5] },
+    {
+      label: "DOB",
+      value: new Date(app[5]).toLocaleDateString("en-GB", {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+    },
     { label: "Applied For", value: app[4] },
     { label: "UG Degree", value: `${app[10]} - ${app[11]}` },
     { label: "PG Degree", value: `${app[12]} - ${app[13]} (${app[14]})` },
@@ -197,22 +208,25 @@
   ];
 
   const html = items.map(i => `<p><strong>${i.label}:</strong> ${i.value}</p>`).join('') +
-    `<div class='mt-6'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Publications</h3>
-     <table class='w-full border border-gray-300'><thead><tr class='bg-gray-100'>
-     <th class='px-3 py-2'>National</th><th class='px-3 py-2'>International</th>
-     <th class='px-3 py-2'>Patents</th><th class='px-3 py-2'>Books</th>
-     <th class='px-3 py-2'>Chapters</th><th class='px-3 py-2'>Docs</th></tr></thead>
-     <tbody><tr>
-     <td class='px-3 py-2'>${national}</td><td class='px-3 py-2'>${international}</td>
-     <td class='px-3 py-2'>${patents}</td><td class='px-3 py-2'>${books}</td>
-     <td class='px-3 py-2'>${chapters}</td><td class='px-3 py-2'>${docs}</td>
-     </tr></tbody></table></div>
-     <div class='mt-4 space-y-1 text-sm'>
-       <p><strong>Academic Score:</strong> ${academicTotal.toFixed(2)} / 37.5</p>
-       <p><strong>Research Score:</strong> ${researchScore.toFixed(2)} / 20</p>
-       <p><strong>Teaching Score:</strong> ${teachingScore.toFixed(2)} / 10</p>
-     </div>
-     <p class='mt-4 text-xl font-bold text-purple-700'>Total Score (out of 67.5): ${totalScore.toFixed(2)}</p>`;
+  `<div class='mt-6'>
+    <h3 class='text-lg font-semibold text-gray-700 mb-2'>Publications</h3>
+    <table class='w-full border border-gray-300'>
+      <tbody>
+        <tr><th class='px-3 py-2 text-left bg-gray-100'>National Journals</th><td class='px-3 py-2'>${national}</td></tr>
+        <tr><th class='px-3 py-2 text-left bg-gray-100'>International Journals</th><td class='px-3 py-2'>${international}</td></tr>
+        <tr><th class='px-3 py-2 text-left bg-gray-100'>Patents</th><td class='px-3 py-2'>${patents}</td></tr>
+        <tr><th class='px-3 py-2 text-left bg-gray-100'>Books</th><td class='px-3 py-2'>${books}</td></tr>
+        <tr><th class='px-3 py-2 text-left bg-gray-100'>Chapters</th><td class='px-3 py-2'>${chapters}</td></tr>
+        <tr><th class='px-3 py-2 text-left bg-gray-100'>Documentaries</th><td class='px-3 py-2'>${docs}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class='mt-4 space-y-1 text-sm'>
+    <p><strong>Academic Score:</strong> ${academicTotal.toFixed(2)} / 37.5</p>
+    <p><strong>Research Score:</strong> ${researchScore.toFixed(2)} / 20</p>
+    <p><strong>Teaching Score:</strong> ${teachingScore.toFixed(2)} / 10</p>
+  </div>
+  <p class='mt-4 text-xl font-bold text-purple-700'>Total Score (out of 67.5): ${totalScore.toFixed(2)}</p>`;
 
   contentEl.innerHTML = html;
   modal.classList.remove("opacity-0", "pointer-events-none");
