@@ -63,7 +63,33 @@
             <div>
               <h2 class="text-xl font-semibold text-gray-800 name">{{ app[2] }}</h2>
               <p class="text-sm text-gray-600 appno"><strong>App No:</strong> {{ app[32] }}</p>
-              <p class="text-sm text-gray-600 phone"><strong>Phone:</strong> <a href="tel:{{ app[6] }}" class="text-primary hover:underline">{{ app[6] }}</a></p>
+              <p class="text-sm text-gray-600 phone">
+                <strong>Phone:</strong>
+                <a href="tel:{{ app[6] }}" class="text-primary hover:underline">{{ app[6] }}</a>
+              </p>
+              
+              {# Logic for course applied #}
+              <p class="text-sm text-gray-700 font-medium">
+                <strong>Applied for:</strong>
+                {% set pg = app[13]|lower %}
+                {% set pg2 = app[14]|lower %}
+                {% set ug = app[3]|lower %}
+                {% set cs_keywords = ['computer science', 'm.tech', 'mtech', 'mca', 'msc', 'mscs', 'ms (cs)', 'cs'] %}
+                {% set lang_keywords = ['kannada', 'english', 'hindi', 'telugu', 'urdu', 'sanskrit'] %}
+              
+                {% if cs_keywords | select('in', pg) | list or cs_keywords | select('in', pg2) | list %}
+                  Computer Science
+                {% elif 'bca' in ug %}
+                  {% if lang_keywords | select('in', pg2) | list %}
+                    BCA - {{ pg2 | title }}
+                  {% else %}
+                    BCA
+                  {% endif %}
+                {% else %}
+                  {{ app[3] }}
+                {% endif %}
+              </p>
+              
             </div>
           </div>
           <div class="mt-4 flex gap-4">
@@ -172,7 +198,9 @@
   else if (postDoc.includes("6 months") && pubCount >= 1) postDocScore = 3;
 
   // Research Publications Score (max 20)
-  const researchScore = national * 1 + international * 2 + patents * 5 + books * 5 + chapters * 2 + docs * 2;
+  const researchScore_raw = national * 1 + international * 2 + patents * 5 + books * 5 + chapters * 2 + docs * 2;
+  const researchScore = Math.min(20, researchScore_raw);
+
 
   // Teaching Score (max 10)
   const teachingScore = Math.min(10, experience * 2);
