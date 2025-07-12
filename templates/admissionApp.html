@@ -51,7 +51,7 @@
     </div>
   </div>
 
-  <div id="studentList" class="grid gap-4">
+  <div id="studentList" class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
     {% for student in students %}
     <div onclick="showStudentModal('{{ student['Application'] }}')" class="cursor-pointer bg-white shadow rounded p-4 hover:bg-blue-50">
       <h3 class="font-bold text-lg">{{ student['Candidate Name'] }}</h3>
