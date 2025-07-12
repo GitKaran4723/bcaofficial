@@ -20,8 +20,18 @@
     <a href="javascript:history.back()" class="bg-gray-500 text-white px-4 py-2 rounded">← Back</a>
   </div>
 
-  <!-- Search and Student List -->
-  <input type="text" id="search" placeholder="Search by name, application, or phone" class="mb-4 w-full p-3 border rounded" onkeyup="filterStudents()">
+  <div class="flex flex-wrap gap-4 mb-4">
+    <input type="text" id="search" placeholder="Search by name, application, or phone" class="flex-grow p-3 border rounded" onkeyup="filterStudents()">
+
+    <select id="filterSelect" onchange="filterStudents()" class="p-3 border rounded">
+      <option value="joined">Joined</option>
+      <option value="withdrawn">Withdrawn</option>
+      <option value="refund">Claimed Refund</option>
+      <option value="all">All</option>
+    </select>
+
+    <span id="studentCount" class="p-3 text-sm text-gray-600">0 students</span>
+  </div>
 
   <!-- Stats -->
   <div id="statsSection" class="grid gap-4 sm:grid-cols-3 lg:grid-cols-5 mb-8">
@@ -162,14 +172,35 @@
 
     function filterStudents() {
       const input = document.getElementById('search').value.toLowerCase();
-      const isSearching = input.length > 0;
-      document.getElementById('statsSection').style.display = isSearching ? 'none' : '';
+      const filter = document.getElementById('filterSelect').value;
       const cards = Array.from(document.querySelectorAll('#studentList > div'));
+      let count = 0;
+
       cards.forEach(card => {
-        const text = card.innerText.toLowerCase();
-        card.style.display = text.includes(input) ? '' : 'none';
+        const appId = card.getAttribute('onclick').match(/'(\d+)'/)[1];
+        const student = studentDataMap[appId];
+        const nameMatch = card.innerText.toLowerCase().includes(input);
+
+        let statusMatch = false;
+        const joining = (student['Joining'] || '').trim().toUpperCase();
+        const remark = (student['PAYMENT REMARKS'] || '').toLowerCase();
+
+        if (filter === 'all') statusMatch = true;
+        else if (filter === 'joined') statusMatch = joining === 'Y';
+        else if (filter === 'withdrawn') statusMatch = joining === 'N';
+        else if (filter === 'refund') statusMatch = remark.includes('refund');
+
+        const show = nameMatch && statusMatch;
+        card.style.display = show ? '' : 'none';
+        if (show) count++;
       });
+
+      document.getElementById('statsSection').style.display = input.length > 0 ? 'none' : '';
+      document.getElementById('studentCount').textContent = `${count} students`;
     }
+    // Call filterStudents() once the page loads
+    window.addEventListener('DOMContentLoaded', filterStudents);
+
   </script>
 </body>
 </html>
