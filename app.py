@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
 from dotenv import load_dotenv
 
@@ -28,7 +28,7 @@ def home():
     updates = []
     last_updated = None
     try:
-        resp = requests.get(UPDATES_JSON_URL, timeout=3)
+        resp = requests.get(UPDATES_JSON_URL, timeout=5)
         resp.raise_for_status()
         payload = resp.json()
         updates = payload.get("updates", [])
@@ -119,20 +119,87 @@ def display_data():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     try:
-        resp = requests.get(GOOGLE_SCRIPT_URL, timeout=3)
+        resp = requests.get(GOOGLE_SCRIPT_URL, timeout=5)
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
         return f"Error fetching data: {e}"
     return render_template('gfApp.html', data=data)
 
+import pandas as pd
+import requests
+import os
+
+def get_admission_dataframe():
+    """
+    Fetch admission application data from the external script URL and return as a DataFrame.
+    """
+    try:
+        admission_url = os.getenv("ADMISSION_SCRIPT_URL")
+        resp = requests.get(admission_url, timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+        df = pd.DataFrame(data)
+        df.columns = [col.strip() for col in df.columns]
+        data_df = df
+        return df
+    except Exception as e:
+        app.logger.error(f"Admission application error: {e}")
+        return render_template('error.html', message=e)
+
 # -- Admission applications --------------------------------------
 @app.route('/admission-applications')
 def admission_applications():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    return render_template('admissionApp.html')
+    try:
+        data_df = get_admission_dataframe()
+        
+        student_preview = data_df[['Application', 'Candidate Name', 'Rank']].fillna('')
 
+        # Seat statistics
+        total_seats = 180
+        filled_seats = data_df['Seat Category'].fillna('').astype(str).str.strip().replace('', pd.NA).dropna().shape[0]
+        vacant_seats = total_seats - filled_seats
+
+        # Sum up all installment columns
+        installment_cols = [col for col in data_df.columns if 'Installment' in col]
+        total_collected = data_df[installment_cols].apply(pd.to_numeric, errors='coerce').fillna(0).sum().sum()
+
+        # Withdrawals and actual strength
+        withdrawing_students = data_df[data_df['Joining'].str.upper().str.strip() == 'N'].shape[0]
+        actual_strength = filled_seats - withdrawing_students
+
+        student_full = data_df.fillna('').to_dict('records')
+
+        return render_template(
+            'admissionApp.html',
+             student_full=student_full,  # full data
+            students=student_preview.to_dict('records'),
+            total_seats=total_seats,
+            filled_seats=filled_seats,
+            vacant_seats=vacant_seats,
+            withdrawing_students=withdrawing_students,
+            actual_strength=actual_strength,
+            total_collected=int(total_collected)
+        )
+    except Exception as err:
+        app.logger.error(f"Admission application error: {err}")
+        return render_template('error.html', message="Error loading admission data.")
+
+@app.route('/api/student/<app_id>')
+def api_view_student(app_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        print("app_id",app_id)
+        data_df = get_admission_dataframe()
+        student = data_df[data_df['Application'] == int(app_id)].to_dict('records')
+        print("student",data_df['Application'])
+        if student:
+            return jsonify(student[0])
+        return jsonify({'error': 'Student not found'}), 404
+    
 # -----------------------------------------------------------------------------
 # Run
 # -----------------------------------------------------------------------------

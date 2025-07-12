@@ -36,8 +36,10 @@
 </head>
 <body class="bg-gradient-to-br from-gray-100 via-gray-50 to-white">
   <div class="container mx-auto px-4 py-6">
-    <h1 class="text-4xl font-extrabold text-center text-primary mb-8">Guest Faculty Application List</h1>
-
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-green-700">👨‍💼 Guest Faculty Applications 2025 - 26</h1>
+    <a href="javascript:history.back()" class="bg-gray-500 text-white px-4 py-2 rounded">← Back</a>
+  </div>
     <div class="mb-6 flex justify-center">
       <input
         type="text"
@@ -132,7 +134,7 @@
   const pgPercentage = parseFloat(app[15]);
   const qual = (app[16] || "").toUpperCase();
   const exam = (app[17] || "").toUpperCase();
-  const postDoc = (app[19] || "").toLowerCase();
+  const postDoc = (app[18] || "").toLowerCase();
   const national = parseInt(app[22]) || 0;
   const international = parseInt(app[23]) || 0;
   const patents = parseInt(app[24]) || 0;
@@ -150,8 +152,8 @@
 
   // PhD / MPhil Score (max 10)
   let qualScore = 0;
-  if (qual.includes("PHD")) qualScore = 10;
-  else if (qual.includes("MPHIL")) qualScore = 5;
+  if (qual.includes("PH. D")) qualScore = 10;
+  else if (qual.includes("M. PHIL")) qualScore = 5;
 
   // NET/SLET (max 7.5)
   let examScore = 0;
@@ -167,9 +169,9 @@
   // Post Doctoral Studies (max 10)
   const pubCount = national + international;
   let postDocScore = 0;
-  if (postDoc.includes("2 years") && pubCount >= 3) postDocScore = 10;
-  else if (postDoc.includes("1 year") && pubCount >= 2) postDocScore = 6;
-  else if (postDoc.includes("6 months") && pubCount >= 1) postDocScore = 3;
+  if (postDoc.includes("2 years & above") && pubCount >= 3) postDocScore = 10;
+  else if (postDoc.includes("1 year & above") && pubCount >= 2) postDocScore = 6;
+  else if (postDoc.includes("6 months & above") && pubCount >= 1) postDocScore = 3;
 
   // Research Publications Score (max 20)
   const researchScore = national * 1 + international * 2 + patents * 5 + books * 5 + chapters * 2 + docs * 2;
