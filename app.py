@@ -98,25 +98,33 @@ def parent_dashboard():
     return render_template('parent_dashboard.html')
 
 # -- Faculty login ------------------------------------------------
-@app.route('/faculty/login', methods=['GET','POST'])
+@app.route('/faculty/login', methods=['GET', 'POST'])
 def faculty_login():
     error = None
     if request.method == 'POST':
-        # TODO: validate faculty credentials
-        session['role'] = 'Faculty'
-        return redirect(url_for('faculty_dashboard'))
+        username = request.form.get('username').strip()
+        password = request.form.get('password').strip()
+
+        # Validate against environment variables
+        if username == os.getenv('TEACHER_USERNAME') and password == os.getenv('TEACHER_PASSWORD'):
+            session['logged_in'] = True
+            session['role'] = 'Faculty'
+            session['username'] = username
+            return redirect(url_for('faculty_dashboard'))
+        else:
+            error = 'Invalid username or password. Please try again.'
     return render_template('faculty_login.html', role='Faculty', error=error)
 
 @app.route('/faculty/dashboard')
 def faculty_dashboard():
     if session.get('role') != 'Faculty':
         return redirect(url_for('faculty_login'))
-    return render_template('faculty_dashboard.html')
+    return render_template('faculty_dashboard.html', username=session.get('username'))
 
 # -- Google-Forms data display ----------------------------------
 @app.route('/gfapplications')
 def display_data():
-    if not session.get('logged_in'):
+    if not session.get('logged_in') :
         return redirect(url_for('login'))
     try:
         resp = requests.get(GOOGLE_SCRIPT_URL, timeout=5)
