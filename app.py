@@ -2,12 +2,14 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
 from dotenv import load_dotenv
+from telegram_bot import telegram_bp
 
 # -----------------------------------------------------------------------------
 # App setup
 # -----------------------------------------------------------------------------
 load_dotenv()
 app = Flask(__name__)
+app.register_blueprint(telegram_bp)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 # Admin credentials
