@@ -115,12 +115,23 @@ def send_message(chat_id, text):
     return 'ok'
 
 def send_keyboard(chat_id, text, options, prefix=""):
-    buttons = [[{"text": opt, "callback_data": f"{prefix}:{opt.split(' - ')[0]}"}] for opt in options]
-    buttons.append([{"text": "❌ Exit", "callback_data": "exit"}])
+    # Arrange buttons in 2-column layout
+    inline_buttons = []
+    row = []
+    for i, opt in enumerate(options):
+        row.append({"text": opt, "callback_data": f"{prefix}:{opt.split(' - ')[0]}"})
+        if len(row) == 2:
+            inline_buttons.append(row)
+            row = []
+    if row:
+        inline_buttons.append(row)
+
+    inline_buttons.append([{"text": "❌ Exit", "callback_data": "exit"}])
+
     payload = {
         'chat_id': chat_id,
         'text': text,
-        'reply_markup': {'inline_keyboard': buttons}
+        'reply_markup': {'inline_keyboard': inline_buttons}
     }
     requests.post(API_URL, json=payload)
     return 'ok'
@@ -143,7 +154,7 @@ def fetch_and_show_attendance(chat_id, session):
         if not isinstance(data, list):
             raise ValueError("Invalid format")
 
-        session['attendance_data'] = data
+        session['attendance_data'] = data  # Keep session active
         usn = session['usn']
         name_input = session['name']
         headers = data[0]
@@ -172,5 +183,5 @@ def fetch_and_show_attendance(chat_id, session):
         session['step'] = 'name'
         return send_message(chat_id, "❌ Name or USN not found. Please enter your name again:")
 
-    except:
+    except Exception:
         return send_message(chat_id, "Coming Soon 😎 Please stay cool.")
