@@ -163,11 +163,14 @@ def fetch_and_show_attendance(chat_id, session):
                     f"Section    : {session['section']}\n"
                     f"Attendance : {percentage}\n"
                     f"Absent on  :\n" +
-                    ("\n".join([f" - {d[:10]}" for d in absents]) if absents else " - Superb 👌 You are Very Regular 🤩")
+                    ("\n".join([f" - {d[:10]}" for d in absents]) if absents else " - None")
                 )
                 send_message(chat_id, message)
                 return send_keyboard(chat_id, "What would you like to do next?", ["🔁 See Another Subject", "👤 New Student"], prefix="other")
 
-        return send_message(chat_id, "❌ Name or USN not found in records.")
+        # Not found → ask again
+        session['step'] = 'name'
+        return send_message(chat_id, "❌ Name or USN not found. Please enter your name again:")
+
     except:
         return send_message(chat_id, "Coming Soon 😎 Please stay cool.")
