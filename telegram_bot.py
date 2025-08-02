@@ -34,27 +34,27 @@ def webhook():
         if query_data.startswith("batch:"):
             batch = query_data.split(":")[1]
             user_session['batch'] = batch
-            user_session['step'] = 'section'
-            SESSION[chat_id] = user_session
-            sections = SECTIONS.get(batch, [])
-            return send_keyboard(chat_id, f"Select Section for {batch}:", sections, prefix="section")
-
-        elif query_data.startswith("section:"):
-            section = query_data.split(":")[1]
-            user_session['section'] = section
             user_session['step'] = 'semester'
             SESSION[chat_id] = user_session
-            return send_keyboard(chat_id, "Select Semester:", [str(i) for i in range(1, 7)], prefix="semester")
+            return send_keyboard(chat_id, "📘 Select Semester:", [str(i) for i in range(1, 7)], prefix="semester")
 
         elif query_data.startswith("semester:"):
             semester = query_data.split(":")[1]
             user_session['semester'] = semester
+            user_session['step'] = 'section'
+            SESSION[chat_id] = user_session
+            sections = SECTIONS.get(user_session['batch'], [])
+            return send_keyboard(chat_id, "🏷️ Select Section:", sections, prefix="section")
+
+        elif query_data.startswith("section:"):
+            section = query_data.split(":")[1]
+            user_session['section'] = section
             user_session['step'] = 'subject'
             SESSION[chat_id] = user_session
-            subjects = SUBJECTS.get(semester)
+            subjects = SUBJECTS.get(user_session['semester'])
             if not subjects:
                 return send_message(chat_id, "Coming Soon 😎 Please stay cool.")
-            return send_keyboard(chat_id, f"Select Subject for Sem {semester}:",
+            return send_keyboard(chat_id, f"📚 Select Subject:",
                                  [f"{code} - {label}" for code, label in subjects], prefix="subject")
 
         elif query_data.startswith("subject:"):
@@ -62,24 +62,28 @@ def webhook():
             user_session['subject'] = subject_code
             user_session['step'] = 'name'
             SESSION[chat_id] = user_session
-            return send_message(chat_id, "Enter Your Name:")
+            return send_message(chat_id, "👤 Enter Your Name:")
 
         elif query_data == "new_student":
             SESSION[chat_id] = {'step': 'batch'}
-            return send_keyboard(chat_id, "Select Batch:", ["24-27", "25-28"], prefix="batch")
+            return send_keyboard(chat_id, "🔰 Select Batch:", ["24-27", "25-28"], prefix="batch")
 
         elif query_data == "other_subject":
             user_session['step'] = 'subject'
+            SESSION[chat_id] = user_session
             semester = user_session.get('semester')
             subjects = SUBJECTS.get(semester)
             if not subjects:
                 return send_message(chat_id, "Coming Soon 😎 Please stay cool.")
-            return send_keyboard(chat_id, f"Select Another Subject for Sem {semester}:",
+            return send_keyboard(chat_id, f"📚 Select Another Subject:",
                                  [f"{code} - {label}" for code, label in subjects], prefix="subject")
+
+        elif query_data == "exit":
+            SESSION.pop(chat_id, None)
+            return send_message(chat_id, "👋 Session ended. Type /start to begin again.")
 
         return 'ok'
 
-    # Text message flow
     message = data['message']
     chat_id = message['chat']['id']
     user_input = message.get('text', '').strip()
@@ -87,14 +91,14 @@ def webhook():
 
     if user_input.lower() in ["/start", "/stop"]:
         SESSION[chat_id] = {'step': 'batch'}
-        return send_keyboard(chat_id, "Select Batch:", ["24-27", "25-28"], prefix="batch")
+        return send_keyboard(chat_id, "🔰 Select Batch:", ["24-27", "25-28"], prefix="batch")
 
     step = user_session.get('step')
 
     if step == 'name':
         user_session['name'] = user_input.upper()
         user_session['step'] = 'usn'
-        return send_message(chat_id, "Enter Your USN:")
+        return send_message(chat_id, "🔑 Enter Your USN:")
 
     elif step == 'usn':
         user_session['usn'] = user_input.upper()
@@ -102,7 +106,7 @@ def webhook():
 
     else:
         SESSION[chat_id] = {'step': 'batch'}
-        return send_keyboard(chat_id, "Let's start fresh. Select Batch:", ["24-27", "25-28"], prefix="batch")
+        return send_keyboard(chat_id, "🔰 Let's start fresh. Select Batch:", ["24-27", "25-28"], prefix="batch")
 
 # --- Helper Functions ---
 
@@ -112,6 +116,7 @@ def send_message(chat_id, text):
 
 def send_keyboard(chat_id, text, options, prefix=""):
     buttons = [[{"text": opt, "callback_data": f"{prefix}:{opt.split(' - ')[0]}"}] for opt in options]
+    buttons.append([{"text": "❌ Exit", "callback_data": "exit"}])
     payload = {
         'chat_id': chat_id,
         'text': text,
@@ -158,12 +163,10 @@ def fetch_and_show_attendance(chat_id, session):
                     f"Section    : {session['section']}\n"
                     f"Attendance : {percentage}\n"
                     f"Absent on  :\n" +
-                    ("\n".join([f" - {d[:10]}" for d in absents]) if absents else " - None")
+                    ("\n".join([f" - {d[:10]}" for d in absents]) if absents else " - Superb 👌 You are Very Regular 🤩")
                 )
                 send_message(chat_id, message)
-                return send_keyboard(chat_id, "What would you like to do next?",
-                                     ["🔁 See Another Subject", "👤 New Student"],
-                                     prefix="other")
+                return send_keyboard(chat_id, "What would you like to do next?", ["🔁 See Another Subject", "👤 New Student"], prefix="other")
 
         return send_message(chat_id, "❌ Name or USN not found in records.")
     except:
