@@ -10,6 +10,7 @@ TOKEN = os.getenv("TELEGRAM_token")
 API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
 SESSION = {}
 
+
 @telegram_bp.route('/telegram', methods=['POST'])
 def webhook():
     data = request.get_json()
@@ -20,12 +21,12 @@ def webhook():
     # ✅ Restart on /start or /stop
     if user_input.lower() in ["/start", "/stop"]:
         SESSION[chat_id] = {'step': 'batch'}
-        return send_message(chat_id, "Enter Batch (e.g., 23-24):")
+        return send_message(chat_id, "Enter Batch (e.g., 24-27):")
 
     # ✅ Initialize session if not exists
     if chat_id not in SESSION:
         SESSION[chat_id] = {'step': 'batch'}
-        return send_message(chat_id, "Enter Batch (e.g., 23-24):")
+        return send_message(chat_id, "Enter Batch (e.g., 24-27):")
 
     user_session = SESSION[chat_id]
     step = user_session['step']
@@ -65,14 +66,18 @@ def webhook():
     else:
         # Reset if user sends something unexpected
         SESSION[chat_id] = {'step': 'batch'}
-        return send_message(chat_id, "Session reset. Enter Batch (e.g., 23-24):")
+        return send_message(chat_id, "Session reset. Enter Batch (e.g., 24-27):")
 
 # ✅ Send message to Telegram
+
+
 def send_message(chat_id, text):
     requests.post(API_URL, json={'chat_id': chat_id, 'text': text})
     return 'ok'
 
 # ✅ Fetch data from Google Sheet and store in session
+
+
 def fetch_and_store_attendance(chat_id, session):
     sheet_url = os.getenv("ATTENDANCE_Script")
 
@@ -98,6 +103,8 @@ def fetch_and_store_attendance(chat_id, session):
         return send_message(chat_id, "⚠️ Unable to fetch data. Start again with /start")
 
 # ✅ Show attendance for given name and usn
+
+
 def show_attendance(chat_id, session):
     data = session.get('attendance_data')
     if not data:
@@ -105,6 +112,7 @@ def show_attendance(chat_id, session):
 
     usn = session['usn']
     name_input = session['name']
+    subject = session['subject']
     headers = data[0]
     date_columns = headers[3:]
 
@@ -113,15 +121,18 @@ def show_attendance(chat_id, session):
             name = row[1]
             percentage = row[2]
             attendance = row[3:]
-            absents = [date for date, status in zip(date_columns, attendance) if status == 'A']
+            absents = [date for date, status in zip(
+                date_columns, attendance) if status == 'A']
 
             message = (
                 f"✅ Attendance Details:\n"
                 f"Name       : {name}\n"
                 f"USN        : {usn}\n"
+                f"Subject    : {subject}\n"
                 f"Attendance : {percentage}\n"
                 f"Absent on  :\n" +
-                ("\n".join([f" - {d[:10]}" for d in absents]) if absents else " - None")
+                ("\n".join([f" - {d[:10]}" for d in absents])
+                 if absents else " - None")
             )
             return send_message(chat_id, message)
 
