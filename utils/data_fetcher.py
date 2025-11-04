@@ -159,3 +159,34 @@ def get_attendance_data(batch: str, semester: str, section: str, subject: str) -
     except Exception as e:
         logger.exception("Failed to fetch attendance data")
         return None
+
+
+def get_documents_tracking_data() -> Optional[pd.DataFrame]:
+    """Fetch documents tracking data for batch 2025-26.
+    
+    Returns:
+        DataFrame with documents tracking data or None on failure
+    """
+    url = os.getenv('STUDENTS_DOCUMENT_SCripts')
+    if not url:
+        logger.error("STUDENTS_DOCUMENT_SCripts URL not configured")
+        return None
+    
+    try:
+        data = fetch_json_from_url(url)
+        if data is None:
+            return None
+            
+        df = pd.DataFrame(data)
+        
+        # Ensure required columns exist
+        required_cols = ['SL No.', 'USN No', 'Student Name']
+        for col in required_cols:
+            if col not in df.columns:
+                logger.warning(f"Required column '{col}' missing from documents tracking data")
+                df[col] = ''
+        
+        return df
+    except Exception as e:
+        logger.exception("Failed to fetch documents tracking data")
+        return None

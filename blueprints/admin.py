@@ -3,7 +3,7 @@
 import logging
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from utils.auth_helpers import validate_admin_credentials
-from utils.data_fetcher import get_admission_data, get_gf_applications
+from utils.data_fetcher import get_admission_data, get_gf_applications, get_documents_tracking_data
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -150,6 +150,36 @@ def api_view_student(app_id):
     except Exception:
         logger.exception('Error fetching student record')
         return jsonify({'error': 'Internal server error'}), 500
+
+
+@admin_bp.route('/documents-tracking')
+def documents_tracking():
+    """View documents tracking for batch 2025-26."""
+    if not session.get('logged_in') or session.get('role') != 'Admin':
+        flash('Access denied', 'danger')
+        return redirect(url_for('admin.login'))
+    
+    try:
+        data_df = get_documents_tracking_data()
+        
+        if data_df is None or data_df.empty:
+            logger.error('Documents tracking data not available')
+            return render_template('error.html', message='Documents tracking data currently unavailable.')
+        
+        # Create preview data for cards (SL No., USN No, Student Name)
+        student_preview = data_df[['SL No.', 'USN No', 'Student Name']].fillna('')
+        
+        # Convert full data to records for JavaScript
+        student_full = data_df.fillna('').to_dict('records')
+        
+        return render_template(
+            'documents_tracking.html',
+            students=student_preview.to_dict('records'),
+            student_full=student_full
+        )
+    except Exception as err:
+        logger.exception("Documents tracking error")
+        return render_template('error.html', message="Error loading documents tracking data.")
 
 
 @admin_bp.route('/logout')

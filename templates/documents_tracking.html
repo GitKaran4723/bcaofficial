@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documents Tracking – Batch 2025-26</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body.modal-open {
+        overflow: hidden;
+      }
+      #modalBg {
+        backdrop-filter: blur(4px);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-green-700">
+        📄 Documents Tracking – Batch 2025-26
+      </h1>
+      <a
+        href="javascript:history.back()"
+        class="bg-gray-500 text-white px-4 py-2 rounded"
+        >← Back</a
+      >
+    </div>
+
+    <!-- Statistics Summary -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">📊 Document Submission Summary</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <p class="text-2xl font-bold text-blue-600" id="totalStudents">0</p>
+          <p class="text-sm text-gray-600">Total Students</p>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <p class="text-2xl font-bold text-green-600" id="completedStudents">0</p>
+          <p class="text-sm text-gray-600">Fully Completed</p>
+        </div>
+        <div class="text-center p-4 bg-yellow-50 rounded-lg">
+          <p class="text-2xl font-bold text-yellow-600" id="pendingStudents">0</p>
+          <p class="text-sm text-gray-600">Pending Documents</p>
+        </div>
+        <div class="text-center p-4 bg-red-50 rounded-lg">
+          <p class="text-2xl font-bold text-red-600" id="cancelledStudents">0</p>
+          <p class="text-sm text-gray-600">Cancelled</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-4 mb-4">
+      <input
+        type="text"
+        id="search"
+        placeholder="Search by name or USN"
+        class="flex-grow p-3 border rounded"
+        onkeyup="filterStudents()"
+      />
+
+      <!-- Filter Dropdowns -->
+      <select
+        id="statusFilter"
+        onchange="filterStudents()"
+        class="p-3 border rounded min-w-[120px]"
+      >
+        <option value="all">All Status</option>
+        <option value="completed">Completed</option>
+        <option value="pending">Pending</option>
+        <option value="cancel">Cancelled</option>
+      </select>
+
+      <select
+        id="sectionFilter"
+        onchange="filterStudents()"
+        class="p-3 border rounded min-w-[100px]"
+      >
+        <option value="all">All Sections</option>
+        <option value="A">Section A</option>
+        <option value="B">Section B</option>
+        <option value="C">Section C</option>
+      </select>
+
+      <select
+        id="quotaFilter"
+        onchange="filterStudents()"
+        class="p-3 border rounded min-w-[120px]"
+      >
+        <option value="all">All Categories</option>
+        <option value="GM">GM (General Merit)</option>
+        <option value="SC">SC (Scheduled Caste)</option>
+        <option value="ST">ST (Scheduled Tribe)</option>
+        <option value="HK">HK (Hyderabad Karnataka)</option>
+        <option value="PWD">PWD (Persons with Disabilities)</option>
+        <option value="CAT">CAT-1 (Category 1)</option>
+        <option value="KM">KM (Kannada Medium)</option>
+        <option value="RL">RL (Rural)</option>
+        <option value="PY">PY (Payment Seats)</option>
+        <option value="OTHER">Other Categories</option>
+      </select>
+
+      <span id="studentCount" class="p-3 text-sm text-gray-600 self-center"
+        >0 students</span
+      >
+    </div>
+
+    <!-- Print Button -->
+    <div class="mb-4 flex justify-center">
+      <button
+        id="printButton"
+        onclick="printDocumentList()"
+        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors hidden"
+      >
+        🖨️ Print Document Submission List
+      </button>
+    </div>
+
+    <div
+      id="studentList"
+      class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+    >
+      {% for student in students %}
+      <div
+        onclick="showStudentModal('{{ student['USN No'] }}')"
+        class="cursor-pointer bg-white shadow rounded p-4 hover:bg-blue-50 relative"
+        data-status="{% if student['Admission_Type'] == 'CANCEL' %}cancel{% else %}active{% endif %}"
+        data-section="{{ student['Section'] or '' }}"
+        data-quota="{{ student['Admission_Type'] or '' }}"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-lg {% if student['Admission_Type'] == 'CANCEL' %}text-red-600{% else %}text-gray-800{% endif %}">
+            {{ student['Student Name'] }}
+          </h3>
+          {% if student['Admission_Type'] == 'CANCEL' %}
+          <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-semibold">CANCEL</span>
+          {% elif student['Admission_Type'] and 'PY' not in student['Admission_Type'] %}
+          <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-semibold">GOVT</span>
+          {% endif %}
+        </div>
+        <p class="text-sm text-gray-600">USN: {{ student['USN No'] }}</p>
+        <p class="text-sm text-gray-600">SL No: {{ student['SL No.'] }}</p>
+        {% if student['Admission_Type'] and 'PY' not in student['Admission_Type'] %}
+        <p class="text-xs text-blue-600 font-medium mt-1">{{ student['Admission_Type'] }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Modal for Student Documents -->
+    <div
+      id="modalBg"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 px-4"
+      onclick="closeModal()"
+    >
+      <div
+        class="bg-white rounded-lg w-full sm:w-[95%] md:w-[80%] lg:w-[60%] max-h-[90vh] overflow-y-auto shadow-lg relative p-6 mx-auto"
+        onclick="event.stopPropagation()"
+      >
+        <button
+          onclick="closeModal()"
+          class="absolute top-4 left-4 text-gray-600 text-lg"
+        >
+          ← Back
+        </button>
+        <div id="modalContent" class="pt-6">Loading...</div>
+      </div>
+    </div>
+
+    <script>
+      const studentDataMap = {};
+      {% for student in student_full %}
+        studentDataMap["{{ student['USN No'] }}"] = {{ student | tojson }};
+      {% endfor %}
+    </script>
+
+    <script>
+      function showStudentModal(usn) {
+        document.body.classList.add("modal-open");
+        document.getElementById("modalBg").classList.remove("hidden");
+        const data = studentDataMap[usn];
+
+        if (!data) {
+          document.getElementById("modalContent").innerHTML =
+            '<p class="text-red-600">Student not found</p>';
+          return;
+        }
+
+        let html = `<div class='text-center mb-6'>
+          <h2 class='text-2xl font-bold ${data["Admission_Type"] === 'CANCEL' ? 'text-red-600' : 'text-blue-700'} mb-2'>
+            ${data["Student Name"]}
+            ${data["Admission_Type"] === 'CANCEL' ? '<span class="bg-red-100 text-red-800 text-sm px-2 py-1 rounded-full ml-2">CANCELLED</span>' : ''}
+          </h2>
+          <p class='text-sm text-gray-500'>USN: <span class='font-semibold'>${data["USN No"]}</span></p>
+          <p class='text-sm text-gray-500'>SL No: <span class='font-semibold'>${data["SL No."]}</span></p>
+        </div>`;
+
+        html += `<div class='mb-4'>
+          <p class='text-lg font-semibold text-gray-700 mb-3'>Admission Details</p>
+          <div class='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+            <p><strong>Admission Type:</strong> <span class='bg-blue-100 px-2 py-1 rounded'>${data["Admission_Type"] || 'N/A'}</span></p>
+            <p><strong>Section:</strong> <span class='bg-green-100 px-2 py-1 rounded'>${data["Section"] || 'N/A'}</span></p>
+            ${data["Admission_Type"] && !data["Admission_Type"].includes('PY') ? `<p class='md:col-span-2'><strong>Seat Type:</strong> <span class='bg-purple-100 text-purple-800 px-2 py-1 rounded font-semibold'>GOVERNMENT SEAT - ${data["Admission_Type"]}</span></p>` : ''}
+          </div>
+        </div>`;
+
+        // Determine required documents based on admission type
+        const admissionType = (data["Admission_Type"] || '').toUpperCase();
+        const isGovernmentSeat = admissionType && !admissionType.includes('PY');
+        const isCancelled = admissionType === 'CANCEL';
+
+        html += `<div class='mb-4'>
+          <p class='text-lg font-semibold text-gray-700 mb-3'>📄 Document Submission Status</p>`;
+
+        // Mandatory documents for all students
+        const mandatoryDocs = {
+          '10th': '10th Marks Card (Mandatory)',
+          '12th': '12th Marks Card (Mandatory)',
+          'TC': 'Transfer Certificate (Mandatory)'
+        };
+
+        // Additional documents based on seat type
+        const additionalDocs = {};
+
+        // Category-specific logic for government seats
+        if (isGovernmentSeat) {
+          // PWD category: only PWD certificate required
+          if (admissionType.includes('PWD')) {
+            additionalDocs['PWD'] = 'PWD Certificate (Required)';
+          }
+          // KM category: only KM certificate required
+          else if (admissionType.includes('KM')) {
+            additionalDocs['KM'] = 'Kannada Medium Certificate (Required)';
+          }
+          // RL category: only RL certificate required
+          else if (admissionType.includes('RL')) {
+            additionalDocs['RL'] = 'Rural Certificate (Required)';
+          }
+          // HK category: only HK certificate required
+          else if (admissionType.includes('HK')) {
+            additionalDocs['HK'] = 'Hyderabad Karnataka Certificate (Required)';
+          }
+          // Categories that require Income Certificate: SC, ST, 3B, 2A, 2B, 3A, CAT-1
+          else if (['SC', 'ST', '3B', '2A', '2B', '3A', 'CAT-1'].some(cat => admissionType.includes(cat))) {
+            additionalDocs['IC'] = 'Income Certificate (Required)';
+          }
+          // Other government categories (GM, etc.): No additional certificates required
+          else {
+            // GM and other categories don't require income certificate
+          }
+        }
+
+        // Combine all documents
+        const allDocuments = { ...mandatoryDocs, ...additionalDocs };
+
+        html += `<div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>`;
+
+        Object.entries(allDocuments).forEach(([key, displayName]) => {
+          const status = (data[key] || '').trim().toLowerCase();
+          let statusText = 'Not Submitted';
+          let statusColor = 'red';
+          let bgColor = 'bg-red-100';
+          let textColor = 'text-red-800';
+          let borderColor = 'border-red-200';
+
+          if (status === 'y') {
+            statusText = 'Submitted';
+            statusColor = 'green';
+            bgColor = 'bg-green-100';
+            textColor = 'text-green-800';
+            borderColor = 'border-green-200';
+          } else if (status === 'n') {
+            statusText = 'Not Submitted';
+            statusColor = 'red';
+            bgColor = 'bg-red-100';
+            textColor = 'text-red-800';
+            borderColor = 'border-red-200';
+          } else if (status === '') {
+            statusText = 'Pending';
+            statusColor = 'yellow';
+            bgColor = 'bg-yellow-100';
+            textColor = 'text-yellow-800';
+            borderColor = 'border-yellow-200';
+          }
+
+          const isMandatory = displayName.includes('(Mandatory)');
+          const highlightClass = isMandatory ? 'ring-2 ring-blue-300' : '';
+
+          html += `
+            <div class='p-3 rounded-lg ${bgColor} border ${borderColor} ${highlightClass}'>
+              <p class='text-sm font-medium ${textColor}'>${displayName}</p>
+              <p class='text-xs ${textColor} mt-1'>${statusText}</p>
+            </div>`;
+        });
+
+        html += `</div>`;
+
+        // Document requirements summary
+        html += `<div class='mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200'>
+          <p class='text-sm font-semibold text-blue-800 mb-2'>📋 Document Requirements:</p>
+          <ul class='text-xs text-blue-700 space-y-1'>
+            <li>• <strong>Mandatory for all:</strong> 10th, 12th, Transfer Certificate</li>
+            ${isGovernmentSeat ? (() => {
+              const isGM = admissionType.includes('GM') && !admissionType.includes('HK') && !admissionType.includes('PWD');
+              if (admissionType.includes('PWD')) {
+                return '<li>• <strong>PWD Category:</strong> PWD Certificate required</li>';
+              } else if (admissionType.includes('KM')) {
+                return '<li>• <strong>KM Category:</strong> Kannada Medium Certificate required</li>';
+              } else if (admissionType.includes('RL')) {
+                return '<li>• <strong>RL Category:</strong> Rural Certificate required</li>';
+              } else if (admissionType.includes('HK')) {
+                return '<li>• <strong>HK Category:</strong> Hyderabad Karnataka Certificate required</li>';
+              } else if (admissionType.includes('SC') || admissionType.includes('ST')) {
+                return '<li>• <strong>SC/ST Category:</strong> Income Certificate required</li>';
+              } else if (['3B', '2A', '2B', '3A', 'CAT-1'].some(cat => admissionType.includes(cat))) {
+                return '<li>• <strong>' + admissionType + ' Category:</strong> Income Certificate required</li>';
+              } else {
+                return '<li>• <strong>GM Category:</strong> No additional certificates required</li>';
+              }
+            })() : '<li>• <strong>Payment Seat:</strong> No additional certificates required</li>'}
+          </ul>
+        </div>`;
+
+        html += `</div>`;
+
+        // Remarks section
+        if (data["REMARKS"] && data["REMARKS"].trim()) {
+          html += `<div class='mb-4'>
+            <p class='text-lg font-semibold text-gray-700 mb-2'>📝 Remarks</p>
+            <div class='bg-gray-50 p-3 rounded-lg border-l-4 border-blue-500'>
+              <p class='text-gray-700 italic'>${data["REMARKS"]}</p>
+            </div>
+          </div>`;
+        }
+
+        // Document Status Legend
+        html += `
+        <div class='mb-4 border border-gray-300 rounded-lg bg-gray-50 p-4 shadow-sm text-sm text-gray-700'>
+          <p class='font-semibold mb-2'>📋 Document Status Legend:</p>
+          <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-3'>
+            <div class='flex items-center'>
+              <span class='inline-block w-3 h-3 rounded-full bg-green-500 mr-2'></span>
+              <span><strong>Green:</strong> Submitted</span>
+            </div>
+            <div class='flex items-center'>
+              <span class='inline-block w-3 h-3 rounded-full bg-red-500 mr-2'></span>
+              <span><strong>Red:</strong> Not Submitted</span>
+            </div>
+            <div class='flex items-center'>
+              <span class='inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2'></span>
+              <span><strong>Yellow:</strong> Pending</span>
+            </div>
+            <div class='flex items-center'>
+              <span class='inline-block w-4 h-4 rounded-full border-2 border-blue-500 mr-2'></span>
+              <span><strong>Blue Border:</strong> Mandatory</span>
+            </div>
+          </div>
+          <div class='text-xs text-gray-600 mt-2'>
+            <p><strong>Note:</strong> Documents with blue borders are mandatory for all students. Government seat students require additional certificates based on their quota.</p>
+            <p><strong>Income Certificate:</strong> Required for SC, ST, 3B, 2A, 2B, 3A, CAT-1 category students.</p>
+          </div>
+        </div>
+      `;
+
+        document.getElementById("modalContent").innerHTML = html;
+      }
+
+      function closeModal() {
+        document.body.classList.remove("modal-open");
+        document.getElementById("modalContent").innerHTML = "Loading...";
+        document.getElementById("modalBg").classList.add("hidden");
+      }
+
+      function calculateStatistics() {
+        let totalStudents = 0;
+        let completedStudents = 0;
+        let pendingStudents = 0;
+        let cancelledStudents = 0;
+
+        Object.values(studentDataMap).forEach(student => {
+          totalStudents++;
+          const admissionType = (student["Admission_Type"] || '').toUpperCase();
+
+          if (admissionType === 'CANCEL') {
+            cancelledStudents++;
+            return;
+          }
+
+          // Check mandatory documents
+          const mandatoryDocs = ['10th', '12th', 'TC'];
+          const isGovernmentSeat = admissionType && !admissionType.includes('PY');
+
+          // Category-specific logic for government seats
+          if (isGovernmentSeat) {
+            // PWD category: only PWD certificate required
+            if (admissionType.includes('PWD')) {
+              mandatoryDocs.push('PWD');
+            }
+            // KM category: only KM certificate required
+            else if (admissionType.includes('KM')) {
+              mandatoryDocs.push('KM');
+            }
+            // RL category: only RL certificate required
+            else if (admissionType.includes('RL')) {
+              mandatoryDocs.push('RL');
+            }
+            // HK category: only HK certificate required
+            else if (admissionType.includes('HK')) {
+              mandatoryDocs.push('HK');
+            }
+            // SC/ST category: Income Certificate required
+            else if (admissionType.includes('SC') || admissionType.includes('ST')) {
+              mandatoryDocs.push('IC');
+            }
+            // Categories that require Income Certificate: 3B, 2A, 2B, 3A, CAT-1
+            else if (['3B', '2A', '2B', '3A', 'CAT-1'].some(cat => admissionType.includes(cat))) {
+              mandatoryDocs.push('IC');
+            }
+            // Other government categories: No additional certificates required
+          }
+
+          let hasAllRequired = true;
+          mandatoryDocs.forEach(doc => {
+            const status = (student[doc] || '').trim().toLowerCase();
+            if (status !== 'y') {
+              hasAllRequired = false;
+            }
+          });
+
+          if (hasAllRequired) {
+            completedStudents++;
+          } else {
+            pendingStudents++;
+          }
+        });
+
+        document.getElementById('totalStudents').textContent = totalStudents;
+        document.getElementById('completedStudents').textContent = completedStudents;
+        document.getElementById('pendingStudents').textContent = pendingStudents;
+        document.getElementById('cancelledStudents').textContent = cancelledStudents;
+      }
+
+      function filterStudents() {
+        const input = document.getElementById("search").value.toLowerCase();
+        const statusFilter = document.getElementById("statusFilter").value;
+        const sectionFilter = document.getElementById("sectionFilter").value;
+        const quotaFilter = document.getElementById("quotaFilter").value;
+
+        const cards = Array.from(
+          document.querySelectorAll("#studentList > div")
+        );
+        let count = 0;
+
+        cards.forEach((card) => {
+          const usn = card.getAttribute("onclick").match(/'([^']+)'/)[1];
+          const student = studentDataMap[usn];
+
+          // Text search
+          const nameMatch = card.innerText.toLowerCase().includes(input);
+          const usnMatch = usn.toLowerCase().includes(input);
+
+          // Status filter
+          let statusMatch = true;
+          let isCompleted = false;
+          if (statusFilter !== 'all') {
+            const admissionType = (student["Admission_Type"] || '').toUpperCase();
+            if (statusFilter === 'cancel') {
+              statusMatch = admissionType === 'CANCEL';
+            } else if (statusFilter === 'pending') {
+              // Check if student is missing any required documents
+              const mandatoryDocs = ['10th', '12th', 'TC'];
+              const isGovernmentSeat = admissionType && !admissionType.includes('PY');
+
+              // Category-specific logic for government seats
+              if (isGovernmentSeat) {
+                // PWD category: only PWD certificate required
+                if (admissionType.includes('PWD')) {
+                  mandatoryDocs.push('PWD');
+                }
+                // KM category: only KM certificate required
+                else if (admissionType.includes('KM')) {
+                  mandatoryDocs.push('KM');
+                }
+                // RL category: only RL certificate required
+                else if (admissionType.includes('RL')) {
+                  mandatoryDocs.push('RL');
+                }
+                // HK category: only HK certificate required
+                else if (admissionType.includes('HK')) {
+                  mandatoryDocs.push('HK');
+                }
+                // SC/ST category: Income Certificate required
+                else if (admissionType.includes('SC') || admissionType.includes('ST')) {
+                  mandatoryDocs.push('IC');
+                }
+                // Categories that require Income Certificate: 3B, 2A, 2B, 3A, CAT-1
+                else if (['3B', '2A', '2B', '3A', 'CAT-1'].some(cat => admissionType.includes(cat))) {
+                  mandatoryDocs.push('IC');
+                }
+                // Other government categories: No additional certificates required
+              }
+
+              let hasAllRequired = true;
+              mandatoryDocs.forEach(doc => {
+                const status = (student[doc] || '').trim().toLowerCase();
+                if (status !== 'y') {
+                  hasAllRequired = false;
+                }
+              });
+
+              statusMatch = !hasAllRequired && admissionType !== 'CANCEL'; // Show students missing documents and not cancelled
+            } else if (statusFilter === 'completed') {
+              // Check if student has all required documents submitted
+              const mandatoryDocs = ['10th', '12th', 'TC'];
+              const isGovernmentSeat = admissionType && !admissionType.includes('PY');
+
+              // Category-specific logic for government seats
+              if (isGovernmentSeat) {
+                // PWD category: only PWD certificate required
+                if (admissionType.includes('PWD')) {
+                  mandatoryDocs.push('PWD');
+                }
+                // KM category: only KM certificate required
+                else if (admissionType.includes('KM')) {
+                  mandatoryDocs.push('KM');
+                }
+                // RL category: only RL certificate required
+                else if (admissionType.includes('RL')) {
+                  mandatoryDocs.push('RL');
+                }
+                // HK category: only HK certificate required
+                else if (admissionType.includes('HK')) {
+                  mandatoryDocs.push('HK');
+                }
+                // SC/ST category: Income Certificate required
+                else if (admissionType.includes('SC') || admissionType.includes('ST')) {
+                  mandatoryDocs.push('IC');
+                }
+                // Categories that require Income Certificate: 3B, 2A, 2B, 3A, CAT-1
+                else if (['3B', '2A', '2B', '3A', 'CAT-1'].some(cat => admissionType.includes(cat))) {
+                  mandatoryDocs.push('IC');
+                }
+                // Other government categories: No additional certificates required
+              }
+
+              let hasAllRequired = true;
+              mandatoryDocs.forEach(doc => {
+                const status = (student[doc] || '').trim().toLowerCase();
+                if (status !== 'y') {
+                  hasAllRequired = false;
+                }
+              });
+
+              statusMatch = hasAllRequired && admissionType !== 'CANCEL';
+              isCompleted = hasAllRequired && admissionType !== 'CANCEL';
+            }
+          }
+
+          // Section filter
+          let sectionMatch = true;
+          if (sectionFilter !== 'all') {
+            sectionMatch = (student["Section"] || '') === sectionFilter;
+          }
+
+          // Quota filter
+          let quotaMatch = true;
+          if (quotaFilter !== 'all') {
+            const admissionType = (student["Admission_Type"] || '').toUpperCase();
+            if (quotaFilter === 'GM') {
+              quotaMatch = admissionType.includes('GM') && !admissionType.includes('HK') && !admissionType.includes('PWD');
+            } else if (quotaFilter === 'SC') {
+              quotaMatch = admissionType.includes('SC');
+            } else if (quotaFilter === 'ST') {
+              quotaMatch = admissionType.includes('ST');
+            } else if (quotaFilter === 'HK') {
+              quotaMatch = admissionType.includes('HK');
+            } else if (quotaFilter === 'PWD') {
+              quotaMatch = admissionType.includes('PWD');
+            } else if (quotaFilter === 'CAT') {
+              quotaMatch = admissionType.includes('CAT');
+            } else if (quotaFilter === 'KM') {
+              quotaMatch = admissionType.includes('KM');
+            } else if (quotaFilter === 'RL') {
+              quotaMatch = admissionType.includes('RL');
+            } else if (quotaFilter === 'PY') {
+              quotaMatch = admissionType.includes('PY');
+            } else if (quotaFilter === 'OTHER') {
+              quotaMatch = !['GM', 'SC', 'ST', 'HK', 'PWD', 'CAT', 'KM', 'RL', 'PY', 'CANCEL'].some(type => admissionType.includes(type));
+            }
+          }
+
+          const show = (nameMatch || usnMatch) && statusMatch && sectionMatch && quotaMatch;
+          card.style.display = show ? "" : "none";
+
+          // Change text color to green for completed students when completed filter is selected
+          const nameElement = card.querySelector('h3');
+          if (statusFilter === 'completed' && isCompleted && show) {
+            nameElement.classList.remove('text-gray-800', 'text-red-600');
+            nameElement.classList.add('text-green-600');
+          } else if (statusFilter !== 'completed') {
+            // Reset to original colors
+            nameElement.classList.remove('text-green-600');
+            const admissionType = (student["Admission_Type"] || '').toUpperCase();
+            if (admissionType === 'CANCEL') {
+              nameElement.classList.add('text-red-600');
+            } else {
+              nameElement.classList.add('text-gray-800');
+            }
+          }
+
+          if (show) count++;
+        });
+
+        document.getElementById(
+          "studentCount"
+        ).textContent = `${count} students`;
+
+        // Show/hide print button based on results
+        const printButton = document.getElementById("printButton");
+        if (count > 0) {
+          printButton.classList.remove("hidden");
+        } else {
+          printButton.classList.add("hidden");
+        }
+      }
+
+      // Call functions once the page loads
+      window.addEventListener("DOMContentLoaded", function() {
+        calculateStatistics();
+        filterStudents();
+      });
+
+      function printDocumentList() {
+        const currentDate = new Date();
+        const dateTimeString = currentDate.toLocaleString('en-IN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          timeZone: 'Asia/Kolkata'
+        });
+
+        // Get current filter values
+        const statusFilter = document.getElementById("statusFilter").value;
+        const sectionFilter = document.getElementById("sectionFilter").value;
+        const quotaFilter = document.getElementById("quotaFilter").value;
+        const searchTerm = document.getElementById("search").value;
+
+        // Get visible students
+        const visibleCards = Array.from(document.querySelectorAll("#studentList > div")).filter(card => {
+          return card.style.display !== "none";
+        });
+
+        // Initialize student count
+        let actualStudentCount = 0;
+
+        // Create print content
+        let printContent = `
+          <html>
+            <head>
+              <title>Document Submission Tracking - ${dateTimeString}</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 10px;
+                  line-height: 1.2;
+                  font-size: 11px;
+                }
+                .header {
+                  text-align: center;
+                  border-bottom: 1px solid #333;
+                  padding-bottom: 6px;
+                  margin-bottom: 10px;
+                }
+                .header h1 {
+                  color: #2563eb;
+                  margin: 0;
+                  font-size: 16px;
+                }
+                .header p {
+                  margin: 2px 0;
+                  color: #666;
+                  font-size: 10px;
+                }
+                .filters {
+                  background: #f8f9fa;
+                  padding: 6px;
+                  border-radius: 3px;
+                  margin-bottom: 10px;
+                  border: 1px solid #dee2e6;
+                  font-size: 10px;
+                }
+                .filters h3 {
+                  margin: 0 0 3px 0;
+                  color: #495057;
+                  font-size: 11px;
+                }
+                .filters p {
+                  margin: 1px 0;
+                  font-size: 10px;
+                }
+                .student-row {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  padding: 4px 0;
+                  border-bottom: 1px solid #eee;
+                  margin-bottom: 8px;
+                }
+                .student-info {
+                  flex: 1;
+                  font-weight: bold;
+                  font-size: 11px;
+                }
+                .student-info.completed {
+                  color: #16a34a; /* green-600 */
+                }
+                .student-info.pending {
+                  color: #dc2626; /* red-600 */
+                }
+                .student-details {
+                  color: #666;
+                  font-size: 9px;
+                  margin-left: 8px;
+                }
+                .documents {
+                  margin-top: 6px;
+                  display: flex;
+                  gap: 4px;
+                  flex-wrap: wrap;
+                }
+                .document-item {
+                  display: flex;
+                  align-items: center;
+                  padding: 3px 4px;
+                  background: #f8f9fa;
+                  border: 1px solid #dee2e6;
+                  border-radius: 2px;
+                  font-size: 9px;
+                }
+                .document-name {
+                  flex: 1;
+                  font-weight: bold;
+                  min-width: 60px;
+                }
+                .signature-area {
+                  width: 70px;
+                  height: 20px;
+                  border: 1px solid #333;
+                  border-radius: 2px;
+                  background: white;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 8px;
+                  color: #666;
+                  margin-left: 4px;
+                }
+                .footer {
+                  margin-top: 15px;
+                  padding-top: 6px;
+                  border-top: 1px solid #dee2e6;
+                  text-align: center;
+                  color: #666;
+                  font-size: 9px;
+                }
+                .signature-section {
+                  margin-top: 15px;
+                  display: flex;
+                  justify-content: center;
+                }
+                .signature-box {
+                  flex: none;
+                  width: 280px;
+                  border: 0.5px solid #333;
+                  border-radius: 3px;
+                  padding: 10px;
+                  text-align: center;
+                  background: #f8f9fa;
+                }
+                .signature-box h4 {
+                  margin: 0 0 6px 0;
+                  font-size: 11px;
+                  color: #333;
+                }
+                .signature-line {
+                  border-top: 1px solid #333;
+                  margin-top: 15px;
+                  padding-top: 3px;
+                  font-size: 9px;
+                  color: #666;
+                }
+                @media print {
+                  body { margin: 8px; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <h1>📄 Document Collection Sheet</h1>
+                <p>Batch 2025-26 - Pending Documents</p>
+                <p><strong>Generated:</strong> ${dateTimeString}</p>
+                <p><strong>Students:</strong> ${actualStudentCount}</p>
+              </div>
+
+              <div class="filters">
+                <h3>Filters:</h3>
+                <p><strong>Status:</strong> ${statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} |
+                   <strong>Section:</strong> ${sectionFilter === 'all' ? 'All' : sectionFilter} |
+                   <strong>Category:</strong> ${quotaFilter === 'all' ? 'All' : quotaFilter}${searchTerm ? ` | <strong>Search:</strong> "${searchTerm}"` : ''}</p>
+              </div>
+        `;
+
+        // Add each visible student in compact rows
+        let studentIndex = 1;
+        visibleCards.forEach((card, index) => {
+          const usn = card.getAttribute("onclick").match(/'([^']+)'/)[1];
+          const student = studentDataMap[usn];
+          const admissionType = (student["Admission_Type"] || '').toUpperCase();
+
+          // Skip cancelled students
+          if (admissionType === 'CANCEL') {
+            return;
+          }
+
+          // Determine required documents for this student
+          const mandatoryDocs = ['10th', '12th', 'TC'];
+          const isGovernmentSeat = admissionType && !admissionType.includes('PY');
+
+          if (isGovernmentSeat) {
+            // PWD category: only PWD certificate required
+            if (admissionType.includes('PWD')) {
+              mandatoryDocs.push('PWD');
+            }
+            // KM category: only KM certificate required
+            else if (admissionType.includes('KM')) {
+              mandatoryDocs.push('KM');
+            }
+            // RL category: only RL certificate required
+            else if (admissionType.includes('RL')) {
+              mandatoryDocs.push('RL');
+            }
+            // HK category: only HK certificate required
+            else if (admissionType.includes('HK')) {
+              mandatoryDocs.push('HK');
+            }
+            // SC/ST category: Income Certificate required
+            else if (admissionType.includes('SC') || admissionType.includes('ST')) {
+              mandatoryDocs.push('IC');
+            }
+            // Categories that require Income Certificate: 3B, 2A, 2B, 3A, CAT-1
+            else if (['3B', '2A', '2B', '3A', 'CAT-1'].some(cat => admissionType.includes(cat))) {
+              mandatoryDocs.push('IC');
+            }
+            // Other government categories: No additional certificates required
+          }
+
+          // Get document display names (shortened)
+          const documentNames = {
+            '10th': '10th Card',
+            '12th': '12th Card',
+            'TC': 'TC',
+            'PWD': 'PWD Cert',
+            'KM': 'KM Cert',
+            'RL': 'Rural Cert',
+            'HK': 'HK Cert',
+            'IC': 'Income Cert'
+          };
+
+          // Always show only pending documents for collection sheet
+          let docsToShow = mandatoryDocs.filter(doc => {
+            const status = (student[doc] || '').trim().toLowerCase();
+            return status !== 'y'; // Only show documents not yet submitted
+          });
+
+          // Only include students who have pending documents
+          if (docsToShow.length === 0) {
+            return; // Skip this student if no pending documents
+          }
+
+          actualStudentCount++;
+
+          // Check if all required documents are submitted for color coding
+          let hasAllRequired = true;
+          mandatoryDocs.forEach(doc => {
+            const status = (student[doc] || '').trim().toLowerCase();
+            if (status !== 'y') {
+              hasAllRequired = false;
+            }
+          });
+          const statusClass = hasAllRequired ? 'completed' : 'pending';
+
+          printContent += `
+            <div class="student-row">
+              <div class="student-info ${statusClass}">
+                ${studentIndex}. ${student["Student Name"]}
+                <span class="student-details">${student["USN No"]} | ${student["Admission_Type"] || 'N/A'}</span>
+              </div>
+              <div class="documents">
+                ${docsToShow.map(doc => `
+                  <div class="document-item">
+                    <span class="document-name">${documentNames[doc] || doc}</span>
+                    <div class="signature-area">Authority Signature</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+          studentIndex++;
+        });
+
+        printContent += `
+              <div class="footer">
+                <p><strong>Instructions:</strong> Documents listed above are pending submission. Authority must sign in the signature box next to each document when received.</p>
+              </div>
+
+              <div class="signature-section">
+                <div class="signature-box" style="flex: none; width: 300px; margin: 0 auto;">
+                  <h4>Receiving Authority</h4>
+                  <p style="font-size: 9px; margin: 8px 0; color: #666;">Authorized personnel verifying document submission</p>
+                  <div class="signature-line">
+                    Name, Signature & Date
+                  </div>
+                </div>
+              </div>
+            </body>
+          </html>
+        `;
+
+        // Open print window
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+
+        // Wait for content to load then print
+        printWindow.onload = function() {
+          printWindow.print();
+        };
+      }
+    </script>
+  </body>
+</html>
