@@ -14,7 +14,7 @@
       <h1 class="text-2xl font-bold">Admin Dashboard</h1>
       <p class="text-sm">BCA Department, Bengaluru University</p>
     </div>
-    <a href="/logout" class="bg-white text-blue-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-100 transition">
+    <a href="{{ url_for('admin.logout') }}" class="bg-white text-blue-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-100 transition">
       Logout
     </a>
   </header>
@@ -25,13 +25,13 @@
 
     <div class="grid gap-6 md:grid-cols-2">
       <!-- Faculty Applications Card -->
-      <a href="/gfapplications" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
+      <a href="{{ url_for('admin.gf_applications') }}" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
         <h3 class="text-lg font-bold text-blue-700">Faculty Applications</h3>
         <p class="text-gray-500 mt-2">View submitted guest faculty applications</p>
       </a>
 
       <!-- Admission Applications Card -->
-      <a href="/admission-applications" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
+      <a href="{{ url_for('admin.admission_applications') }}" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
         <h3 class="text-lg font-bold text-blue-700">Admission Applications</h3>
         <p class="text-gray-500 mt-2">View student admission application data</p>
       </a>

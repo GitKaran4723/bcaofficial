@@ -23,8 +23,8 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY") or os.urandom(24)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-# Debug mode from environment (default: True for development)
-DEBUG_MODE = os.getenv('FLASK_DEBUG', 'true').lower() in ('1', 'true', 'yes')
+# Debug mode from environment (default: False)
+DEBUG_MODE = os.getenv('FLASK_DEBUG', 'false').lower() in ('1', 'true', 'yes')
 
 # Validate critical environment variables
 REQUIRED_ENVS = [

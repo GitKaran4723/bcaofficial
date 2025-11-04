@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parent Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <header class="bg-green-700 text-white p-4">
+    <div class="max-w-5xl mx-auto">Parent Dashboard</div>
+  </header>
+  <main class="max-w-5xl mx-auto p-6">
+    <p>Welcome to the parent dashboard. This is a placeholder page.</p>
+    <p><a href="{{ url_for('parent.logout') }}" class="text-blue-600">Logout</a></p>
+  </main>
+</body>
+</html>

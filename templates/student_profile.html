@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile – BCA Student Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-blue-700 text-white py-4 px-6 shadow-md flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold">My Profile</h1>
+      <p class="text-sm">Welcome, {{ student_name }}</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="{{ url_for('student.dashboard') }}" class="bg-white text-blue-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-100 transition">
+        Back to Dashboard
+      </a>
+      <a href="{{ url_for('student.logout') }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition">
+        Logout
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 px-4 py-8 max-w-5xl mx-auto w-full">
+    <!-- Profile Overview Card -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-xl shadow-lg mb-8">
+      <div class="flex items-center gap-6">
+        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl">
+          👤
+        </div>
+        <div>
+          <h2 class="text-3xl font-bold">{{ student_name }}</h2>
+          <p class="text-blue-100 text-lg mt-1">USN: {{ usn }}</p>
+          <p class="text-blue-200 text-sm mt-2">{{ student_info.get('Course', 'BCA') }} Student</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Personal Information</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Name -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Full Name</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Name', student_info.get('Candidate Name', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- USN -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">USN (University Seat Number)</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('USN', usn if usn else '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Date of Birth -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Date of Birth</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('DOB', student_info.get('Date of Birth', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Gender -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Gender</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Gender', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Mobile Number</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Mobile', student_info.get('Phone', student_info.get('Contact', '<span class="text-orange-600 italic">Data to be updated</span>'))) | safe }}
+          </p>
+        </div>
+
+        <!-- Email -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Email Address</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Email', student_info.get('Email ID', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Father's Name -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Father's Name</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get("Father's Name", student_info.get('Father Name', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Mother's Name -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Mother's Name</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get("Mother's Name", student_info.get('Mother Name', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Academic Information -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Academic Information</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Course -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Course</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Course', student_info.get('Program', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Batch -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Batch</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Batch', student_info.get('Year', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Semester -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Current Semester</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Semester', student_info.get('Sem', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Section -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Section</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Section', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Roll Number -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Roll Number</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Roll No', student_info.get('Roll Number', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Admission Date -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Admission Date</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Admission Date', student_info.get('Date of Admission', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Information -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Address Information</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Current Address -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Current Address</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Address', student_info.get('Current Address', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+
+        <!-- Permanent Address -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Permanent Address</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Permanent Address', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- City -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">City</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('City', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- State -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">State</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('State', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- PIN Code -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">PIN Code</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('PIN Code', student_info.get('Pincode', '<span class="text-orange-600 italic">Data to be updated</span>')) | safe }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Information -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Additional Information</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Blood Group -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Blood Group</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Blood Group', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Category -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Category</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Category', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Religion -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Religion</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Religion', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Nationality -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Nationality</p>
+          <p class="text-gray-800 mt-1">
+            {{ student_info.get('Nationality', '<span class="text-orange-600 italic">Data to be updated</span>') | safe }}
+          </p>
+        </div>
+
+        <!-- Aadhar Number -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-500 font-semibold">Aadhar Number</p>
+          <p class="text-gray-800 mt-1">
+            {% if student_info.get('Aadhar', student_info.get('Aadhar Number')) %}
+              {{ student_info.get('Aadhar', student_info.get('Aadhar Number'))[:4] }}********
+            {% else %}
+              <span class="text-orange-600 italic">Data to be updated</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Message -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-blue-700">
+            <strong>Note:</strong> If any information is missing or incorrect, please contact the department office or your class coordinator to update your details in the system.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center text-gray-500 text-sm py-4 border-t mt-8">
+    &copy; 2025 BCA Department, Bengaluru University
+  </footer>
+</body>
+</html>
