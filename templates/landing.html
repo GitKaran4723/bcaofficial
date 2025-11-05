@@ -3,103 +3,323 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BCA Department Portal</title>
+  <title>BCA Department Portal | Bengaluru University</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .animate-gradient {
+      background-size: 200% 200%;
+      animation: gradient 15s ease infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .fade-in-up {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex flex-col">
+<body class="antialiased overflow-x-hidden">
 
-  <!-- Header -->
-  <header class="w-full flex items-center justify-between px-6 py-4 bg-blue-700 text-white shadow-md">
-    <div>
-      <h1 class="text-3xl font-bold">BCA Department</h1>
-      <p class="text-sm">Bengaluru University, Jnana Bharathi Campus</p>
-    </div>
-    <button id="loginBtn" class="bg-white text-blue-700 px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition">
-      Login
-    </button>
-  </header>
-
-  <!-- Main Content -->
-  <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-10">
-
-    <!-- Welcome Section -->
-    <section class="text-center mb-12">
-      <h2 class="text-4xl font-semibold mb-2">Welcome to the BCA Digital Space</h2>
-      <p class="text-gray-600">Your one-stop portal for all academic updates, applications, and resources.</p>
-    </section>
-
-    <!-- Live Updates Section (dynamic) -->
-    <section class="mt-12 bg-white p-6 rounded-xl shadow-md">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold text-blue-700">Live Updates</h2>
-        {% if last_updated %}
-          <time class="text-sm text-gray-500">Last updated: {{ last_updated.replace("T"," ") }}</time>
-        {% endif %}
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16 sm:h-20">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg">
+            BU
+          </div>
+          <div class="flex flex-col">
+            <h1 class="text-lg sm:text-xl font-bold text-gray-800">BCA Department</h1>
+            <p class="text-xs text-gray-600 hidden sm:block">Bengaluru University</p>
+          </div>
+        </div>
+        <button id="loginBtn" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          Portal Login
+        </button>
       </div>
-      <ul class="space-y-4">
-        {% for u in updates %}
-          <li class="border-l-4 pl-4
-                     {% if u.type == 'Exam Notification' %}border-red-500
-                     {% elif u.type == 'Timetable Update' %}border-green-500
-                     {% else %}border-gray-300{% endif %}">
-            <div class="flex justify-between items-baseline">
-              <h3 class="font-medium">{{ u.title }}</h3>
-              <time class="text-sm text-gray-500">{{ u.date|replace("T"," ") }}</time>
-            </div>
-            <p class="text-sm text-gray-600">{{ u.description }}</p>
-            {% if u.link %}
-              <a href="{{ u.link }}" class="text-sm text-blue-600 hover:underline">View details</a>
-            {% endif %}
-          </li>
-        {% else %}
-          <li class="text-gray-500">No updates at the moment.</li>
-        {% endfor %}
-      </ul>
-    </section>
+    </div>
+  </nav>
 
-    <!-- Call-to-Action -->
-    <section class="text-center mt-12">
-      <p class="text-gray-600 mb-4">Click “Login” above to access your dashboard:</p>
-      <button id="loginBtn2" class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow hover:bg-blue-700 transition">
-        Login Now
+  <!-- Hero Section -->
+  <section class="relative pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 animate-gradient text-white overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-20 left-10 w-32 sm:w-72 h-32 sm:h-72 bg-white/10 rounded-full blur-3xl animate-float"></div>
+    <div class="absolute bottom-20 right-10 w-40 sm:w-96 h-40 sm:h-96 bg-purple-500/20 rounded-full blur-3xl" style="animation: float 4s ease-in-out infinite;"></div>
+    
+    <div class="relative max-w-7xl mx-auto text-center z-10">
+      <div class="opacity-0 fade-in-up">
+        <span class="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm sm:text-base font-medium mb-6">
+          ✨ Welcome to Premium Education
+        </span>
+      </div>
+      <h2 class="opacity-0 fade-in-up delay-100 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
+        BCA Digital<br/>Excellence Hub
+      </h2>
+      <p class="opacity-0 fade-in-up delay-200 text-lg sm:text-xl md:text-2xl text-blue-100 mb-8 sm:mb-12 max-w-3xl mx-auto px-4">
+        Your gateway to academic excellence, innovation, and digital learning at Bengaluru University's prestigious BCA program
+      </p>
+      <div class="opacity-0 fade-in-up delay-300 flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
+        <button id="loginBtn2" class="w-full sm:w-auto bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
+          Access Portal →
+        </button>
+        <a href="#features" class="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300">
+          Explore Features
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="py-12 sm:py-16 px-4 bg-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 transform hover:scale-105 transition-all duration-300">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-600 mb-2">5000+</div>
+          <div class="text-sm sm:text-base text-gray-600 font-medium">Students Enrolled</div>
+        </div>
+        <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 transform hover:scale-105 transition-all duration-300">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-600 mb-2">50+</div>
+          <div class="text-sm sm:text-base text-gray-600 font-medium">Expert Faculty</div>
+        </div>
+        <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 transform hover:scale-105 transition-all duration-300">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-green-600 mb-2">95%</div>
+          <div class="text-sm sm:text-base text-gray-600 font-medium">Placement Rate</div>
+        </div>
+        <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 transform hover:scale-105 transition-all duration-300">
+          <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600 mb-2">25+</div>
+          <div class="text-sm sm:text-base text-gray-600 font-medium">Years Legacy</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-16 sm:py-24 px-4 bg-gradient-to-br from-gray-50 to-blue-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-12 sm:mb-16">
+        <h3 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-4">Portal Features</h3>
+        <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">Everything you need for a seamless academic journey, all in one place</p>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Feature Card 1 -->
+        <div class="group bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl sm:text-3xl">📚</span>
+          </div>
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Academic Resources</h4>
+          <p class="text-gray-600 leading-relaxed">Access study materials, attendance records, marks, and comprehensive academic information</p>
+        </div>
+
+        <!-- Feature Card 2 -->
+        <div class="group bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl sm:text-3xl">🎓</span>
+          </div>
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Application Portal</h4>
+          <p class="text-gray-600 leading-relaxed">Submit and track government fellowship and admission applications seamlessly</p>
+        </div>
+
+        <!-- Feature Card 3 -->
+        <div class="group bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl sm:text-3xl">📱</span>
+          </div>
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Real-Time Updates</h4>
+          <p class="text-gray-600 leading-relaxed">Stay informed with live notices, exam schedules, and important announcements</p>
+        </div>
+
+        <!-- Feature Card 4 -->
+        <div class="group bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl sm:text-3xl">👨‍🏫</span>
+          </div>
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Faculty Management</h4>
+          <p class="text-gray-600 leading-relaxed">Faculty portal for managing records, bills, and teaching documentation</p>
+        </div>
+
+        <!-- Feature Card 5 -->
+        <div class="group bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl sm:text-3xl">👨‍👩‍👧</span>
+          </div>
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Parent Access</h4>
+          <p class="text-gray-600 leading-relaxed">Parents can monitor their child's academic progress and performance</p>
+        </div>
+
+        <!-- Feature Card 6 -->
+        <div class="group bg-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <span class="text-2xl sm:text-3xl">📄</span>
+          </div>
+          <h4 class="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Document Tracking</h4>
+          <p class="text-gray-600 leading-relaxed">Track and manage student documents and admission paperwork efficiently</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-16 sm:py-24 px-4 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white">
+    <div class="max-w-4xl mx-auto text-center">
+      <h3 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">Ready to Get Started?</h3>
+      <p class="text-lg sm:text-xl md:text-2xl text-indigo-100 mb-8 sm:mb-12">Access your personalized dashboard and explore all the features</p>
+      <button id="loginBtn3" class="bg-white text-indigo-600 px-8 sm:px-12 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
+        Login to Portal →
       </button>
-    </section>
-
-  </main>
+    </div>
+  </section>
 
   <!-- Footer -->
-  <footer class="w-full text-center py-4 text-sm text-gray-500">
-    &copy; 2025 BCA Department, Bengaluru University
+  <footer class="bg-gray-900 text-gray-400 py-8 sm:py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">BU</div>
+            <span class="text-white font-bold text-lg">BCA Department</span>
+          </div>
+          <p class="text-sm leading-relaxed">Empowering future tech leaders through quality education and innovation</p>
+        </div>
+        <div>
+          <h5 class="text-white font-bold mb-4">Quick Links</h5>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Admissions</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Faculty</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Placements</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="text-white font-bold mb-4">Resources</h5>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">Library</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">E-Learning</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Research</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Publications</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5 class="text-white font-bold mb-4">Contact</h5>
+          <ul class="space-y-2 text-sm">
+            <li>📍 Jnana Bharathi Campus</li>
+            <li>📍 Bengaluru University</li>
+            <li>📧 bca@bangaloreuniversity.ac.in</li>
+            <li>📞 +91 80 2321 9295</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-8 text-center text-sm">
+        <p>&copy; 2025 BCA Department, Bengaluru University. All rights reserved.</p>
+      </div>
+    </div>
   </footer>
 
   <!-- Role-Selector Modal -->
-  <div id="roleModal"
-       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-2xl p-8 w-80 relative">
-      <button id="closeModal"
-              class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-      <h4 class="text-xl font-semibold mb-6 text-center">You are</h4>
+  <div id="roleModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md relative shadow-2xl transform transition-all">
+      <button id="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl transition-colors">&times;</button>
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl">🎓</span>
+        </div>
+        <h4 class="text-2xl sm:text-3xl font-bold text-gray-800">Select Your Role</h4>
+        <p class="text-gray-600 mt-2">Choose your portal access type</p>
+      </div>
       <ul class="space-y-3">
-        <li><a href="{{ url_for('student.login') }}" class="block text-center py-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition">Student</a></li>
-        <li><a href="{{ url_for('parent.login') }}"  class="block text-center py-2 bg-green-100 rounded-lg hover:bg-green-200 transition">Parent</a></li>
-        <li><a href="{{ url_for('faculty.login') }}" class="block text-center py-2 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition">Faculty</a></li>
-        <li><a href="{{ url_for('attender.login') }}" class="block text-center py-2 bg-purple-100 rounded-lg hover:bg-purple-200 transition">Attender</a></li>
-        <li><a href="{{ url_for('admin.login') }}"         class="block text-center py-2 bg-red-100 rounded-lg hover:bg-red-200 transition">Admin</a></li>
+        <li>
+          <a href="{{ url_for('student.login') }}" class="block text-center py-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 border-2 border-blue-200 hover:border-blue-400 font-semibold text-blue-700 transform hover:scale-105">
+            👨‍🎓 Student Portal
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('parent.login') }}" class="block text-center py-4 bg-gradient-to-r from-green-50 to-lime-50 rounded-xl hover:from-green-100 hover:to-lime-100 transition-all duration-300 border-2 border-green-200 hover:border-green-400 font-semibold text-green-700 transform hover:scale-105">
+            👨‍👩‍👧 Parent Portal
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('faculty.login') }}" class="block text-center py-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl hover:from-purple-100 hover:to-indigo-100 transition-all duration-300 border-2 border-purple-200 hover:border-purple-400 font-semibold text-purple-700 transform hover:scale-105">
+            👨‍🏫 Faculty Portal
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('attender.login') }}" class="block text-center py-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 border-2 border-emerald-200 hover:border-emerald-400 font-semibold text-emerald-700 transform hover:scale-105">
+            📋 Attender Portal
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin.login') }}" class="block text-center py-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl hover:from-red-100 hover:to-orange-100 transition-all duration-300 border-2 border-red-200 hover:border-red-400 font-semibold text-red-700 transform hover:scale-105">
+            🔐 Admin Portal
+          </a>
+        </li>
       </ul>
     </div>
   </div>
 
-  <!-- Modal & Button Script -->
+  <!-- Scripts -->
   <script>
-    const modal       = document.getElementById('roleModal');
-    const openBtns    = [document.getElementById('loginBtn'), document.getElementById('loginBtn2')];
-    const closeModal  = document.getElementById('closeModal');
+    const modal = document.getElementById('roleModal');
+    const openBtns = [
+      document.getElementById('loginBtn'),
+      document.getElementById('loginBtn2'),
+      document.getElementById('loginBtn3')
+    ];
+    const closeModal = document.getElementById('closeModal');
 
-    openBtns.forEach(btn =>
-      btn.addEventListener('click', () => modal.classList.remove('hidden'))
-    );
-    closeModal.addEventListener('click', () => modal.classList.add('hidden'));
-    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+    openBtns.forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', () => {
+          modal.classList.remove('hidden');
+        });
+      }
+    });
+
+    closeModal.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
   </script>
 
 </body>

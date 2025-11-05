@@ -3,16 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parent Dashboard</title>
+  <title>Parent Dashboard – BCA Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <header class="bg-green-700 text-white p-4">
-    <div class="max-w-5xl mx-auto">Parent Dashboard</div>
+<body class="bg-gradient-to-br from-green-50 to-lime-50 min-h-screen flex flex-col">
+
+  <!-- Header with Green/Lime Theme -->
+  <header class="bg-gradient-to-r from-green-600 to-lime-600 text-white py-5 px-6 shadow-lg">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold">Parent Dashboard</h1>
+        <p class="text-sm opacity-90 mt-1">BCA Department, Bengaluru University</p>
+      </div>
+      <a href="{{ url_for('parent.logout') }}" class="bg-white text-green-600 hover:bg-green-50 px-5 py-2 rounded-lg text-sm font-semibold transition shadow-md hover:shadow-lg">
+        <span class="mr-1">🚪</span> Logout
+      </a>
+    </div>
   </header>
-  <main class="max-w-5xl mx-auto p-6">
-    <p>Welcome to the parent dashboard. This is a placeholder page.</p>
-    <p><a href="{{ url_for('parent.logout') }}" class="text-blue-600">Logout</a></p>
+
+  <!-- Main Content -->
+  <main class="flex-1 px-4 py-10 max-w-7xl mx-auto w-full">
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-green-800 mb-2">
+        Welcome, Parent!
+      </h2>
+      <p class="text-gray-600">Monitor your child's academic progress and activities</p>
+    </div>
+
+    <!-- Coming Soon Message -->
+    <div class="bg-white rounded-2xl shadow-lg p-10 text-center border-t-4 border-green-500">
+      <div class="text-8xl mb-6">👨‍👩‍👧‍👦</div>
+      <h3 class="text-3xl font-bold text-green-800 mb-4">Parent Portal Coming Soon!</h3>
+      <p class="text-gray-600 text-lg mb-6">We're working on exciting features for parents to stay connected with their child's academic journey.</p>
+      
+      <div class="grid gap-6 md:grid-cols-3 mt-10 max-w-4xl mx-auto">
+        <!-- Feature 1 -->
+        <div class="bg-green-50 p-6 rounded-xl">
+          <div class="text-4xl mb-3">📊</div>
+          <h4 class="font-bold text-green-800 mb-2">Attendance Tracking</h4>
+          <p class="text-sm text-gray-600">Real-time attendance updates</p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="bg-lime-50 p-6 rounded-xl">
+          <div class="text-4xl mb-3">📝</div>
+          <h4 class="font-bold text-lime-800 mb-2">Academic Progress</h4>
+          <p class="text-sm text-gray-600">View marks and performance</p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="bg-emerald-50 p-6 rounded-xl">
+          <div class="text-4xl mb-3">📢</div>
+          <h4 class="font-bold text-emerald-800 mb-2">Notifications</h4>
+          <p class="text-sm text-gray-600">Important announcements</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder Cards -->
+    <div class="mt-10">
+      <h3 class="text-xl font-bold text-green-800 mb-4">Coming Features</h3>
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Student Info Card -->
+        <div class="group bg-white p-6 shadow-lg rounded-2xl border-l-4 border-green-500 opacity-60">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-5xl">👨‍🎓</div>
+            <div class="bg-green-100 text-green-600 text-xs font-bold px-3 py-1 rounded-full">SOON</div>
+          </div>
+          <h3 class="text-xl font-bold text-green-700 mb-2">Student Information</h3>
+          <p class="text-gray-600 text-sm">View your child's profile and details</p>
+        </div>
+
+        <!-- Attendance Card -->
+        <div class="group bg-white p-6 shadow-lg rounded-2xl border-l-4 border-lime-500 opacity-60">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-5xl">📊</div>
+            <div class="bg-lime-100 text-lime-600 text-xs font-bold px-3 py-1 rounded-full">SOON</div>
+          </div>
+          <h3 class="text-xl font-bold text-lime-700 mb-2">Attendance Report</h3>
+          <p class="text-gray-600 text-sm">Monitor attendance percentage</p>
+        </div>
+
+        <!-- Marks Card -->
+        <div class="group bg-white p-6 shadow-lg rounded-2xl border-l-4 border-emerald-500 opacity-60">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-5xl">📝</div>
+            <div class="bg-emerald-100 text-emerald-600 text-xs font-bold px-3 py-1 rounded-full">SOON</div>
+          </div>
+          <h3 class="text-xl font-bold text-emerald-700 mb-2">Academic Performance</h3>
+          <p class="text-gray-600 text-sm">View internal marks and grades</p>
+        </div>
+
+        <!-- Communication Card -->
+        <div class="group bg-white p-6 shadow-lg rounded-2xl border-l-4 border-teal-500 opacity-60">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-5xl">💬</div>
+            <div class="bg-teal-100 text-teal-600 text-xs font-bold px-3 py-1 rounded-full">SOON</div>
+          </div>
+          <h3 class="text-xl font-bold text-teal-700 mb-2">Communication</h3>
+          <p class="text-gray-600 text-sm">Connect with faculty members</p>
+        </div>
+
+        <!-- Fee Details Card -->
+        <div class="group bg-white p-6 shadow-lg rounded-2xl border-l-4 border-cyan-500 opacity-60">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-5xl">💰</div>
+            <div class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full">SOON</div>
+          </div>
+          <h3 class="text-xl font-bold text-cyan-700 mb-2">Fee Management</h3>
+          <p class="text-gray-600 text-sm">View fee details and payments</p>
+        </div>
+
+        <!-- Notices Card -->
+        <div class="group bg-white p-6 shadow-lg rounded-2xl border-l-4 border-amber-500 opacity-60">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-5xl">📢</div>
+            <div class="bg-amber-100 text-amber-600 text-xs font-bold px-3 py-1 rounded-full">SOON</div>
+          </div>
+          <h3 class="text-xl font-bold text-amber-700 mb-2">Notices & Events</h3>
+          <p class="text-gray-600 text-sm">Stay updated with announcements</p>
+        </div>
+      </div>
+    </div>
   </main>
+
+  <footer class="bg-green-600 text-white text-center text-sm py-4 mt-auto">
+    <p>&copy; 2025 BCA Department, Bengaluru University. All rights reserved.</p>
+  </footer>
+
 </body>
 </html>
