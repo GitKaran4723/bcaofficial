@@ -42,6 +42,22 @@ def validate_faculty_credentials(username: str, password: str) -> bool:
     return username == faculty_user and password == faculty_pass
 
 
+def validate_attender_credentials(username: str, password: str) -> bool:
+    """Validate attender login credentials against environment variables.
+    
+    Args:
+        username: Attender username
+        password: Attender password
+        
+    Returns:
+        True if credentials match, False otherwise
+    """
+    attender_user = os.getenv('ATTENDER_USERNAME')
+    attender_pass = os.getenv('ATTENDER_PASSWORD')
+    
+    return username == attender_user and password == attender_pass
+
+
 def validate_student_credentials(usn: str, dob: str) -> Optional[Dict[str, Any]]:
     """Validate student credentials using USN and Date of Birth.
     

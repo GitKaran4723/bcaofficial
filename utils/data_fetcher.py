@@ -190,3 +190,46 @@ def get_documents_tracking_data() -> Optional[pd.DataFrame]:
     except Exception as e:
         logger.exception("Failed to fetch documents tracking data")
         return None
+
+
+def get_faculty_bills_data(timeout: int = 15) -> Optional[pd.DataFrame]:
+    """Fetch faculty bills/teaching records data from Google Sheets.
+    
+    Supports list-of-lists (first row header) or list-of-dicts format.
+    
+    Args:
+        timeout: Request timeout in seconds
+        
+    Returns:
+        DataFrame with faculty bills data or None on failure
+    """
+    url = os.getenv('FACULTY_BILLS_SCRIPT')
+    if not url:
+        logger.error("FACULTY_BILLS_SCRIPT URL not configured")
+        return None
+    
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+
+        if isinstance(data, list) and len(data) > 0 and isinstance(data[0], list):
+            # list-of-lists format: first row is header
+            header = [str(h).strip() for h in data[0]]
+            rows = data[1:]
+            try:
+                df = pd.DataFrame(rows, columns=header)
+            except Exception:
+                df = pd.DataFrame(rows)
+                df.columns = [str(c).strip() for c in df.columns]
+        elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
+            # list-of-dicts format
+            df = pd.DataFrame(data)
+        else:
+            df = pd.DataFrame(data)
+
+        df.columns = [str(c).strip() for c in df.columns]
+        return df
+    except Exception as e:
+        logger.exception("Failed to fetch faculty bills data")
+        return None

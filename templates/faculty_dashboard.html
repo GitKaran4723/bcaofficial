@@ -24,17 +24,23 @@
   <h2 class="text-xl font-semibold text-gray-700 mb-6">Welcome, {{ username|capitalize }}</h2>
 
 
-    <div class="grid gap-6 md:grid-cols-2">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <!-- Faculty Applications Card -->
       <a href="{{ url_for('faculty.gf_applications') }}" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
-        <h3 class="text-lg font-bold text-blue-700">Faculty Applications</h3>
+        <h3 class="text-lg font-bold text-blue-700">📋 Faculty Applications</h3>
         <p class="text-gray-500 mt-2">View submitted guest faculty applications</p>
       </a>
 
       <!-- Admission Applications Card -->
       <a href="{{ url_for('faculty.admission_applications') }}" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
-        <h3 class="text-lg font-bold text-blue-700">Admission Applications</h3>
+        <h3 class="text-lg font-bold text-blue-700">📝 Admission Applications</h3>
         <p class="text-gray-500 mt-2">View student admission application data</p>
+      </a>
+
+      <!-- Faculty Bills Report Card -->
+      <a href="{{ url_for('faculty.bills_report') }}" class="bg-white p-6 shadow-md rounded-xl hover:shadow-lg transition text-center">
+        <h3 class="text-lg font-bold text-blue-700">📊 Teaching Records</h3>
+        <p class="text-gray-500 mt-2">View monthly/weekly bills and teaching records</p>
       </a>
     </div>
   </main>

@@ -49,6 +49,7 @@ from blueprints.student import student_bp
 from blueprints.parent import parent_bp
 from blueprints.faculty import faculty_bp
 from blueprints.admin import admin_bp
+from blueprints.attender import attender_bp
 from telegram_bot import telegram_bp
 
 app.register_blueprint(home_bp)
@@ -56,6 +57,7 @@ app.register_blueprint(student_bp)
 app.register_blueprint(parent_bp)
 app.register_blueprint(faculty_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(attender_bp)
 app.register_blueprint(telegram_bp)
 
 logger.info("All blueprints registered successfully")
