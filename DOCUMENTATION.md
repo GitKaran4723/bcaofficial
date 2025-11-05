@@ -281,17 +281,17 @@ Columns: Date, Faculty, Dairy No., Particulars, Subject, Class, Actual hours, Su
 #### Admin Login
 - URL: http://localhost:5000/admin/login
 - Username: `admin` (from .env)
-- Password: `admin123` (from .env)
+- Password: `admin` (from .env)
 
 #### Faculty Login
 - URL: http://localhost:5000/faculty/login
 - Username: `karan` (from .env)
-- Password: `karan135` (from .env)
+- Password: `karan` (from .env)
 
 #### Attender Login
 - URL: http://localhost:5000/attender/login
 - Username: `shankar` (from .env)
-- Password: `shankar123` (from .env)
+- Password: `shankar` (from .env)
 
 #### Student Login
 - URL: http://localhost:5000/student/login
